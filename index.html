@@ -770,8 +770,7 @@
     <!-- Page level custom scripts -->
     <script src="js/demo/chart-area-demo.js"></script>
     <script src="js/demo/chart-pie-demo.js"></script>
-<!-- KODE PENGOLAH DATA JENDERAL SERVIS -->
-    <script>
+
         // 1. MASUKKAN LINK CSV ANDA DI SINI (Biarkan tanda kutipnya tetap ada)
         const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYtK3VxhWb9o5TgCgM2OAaJxZR7C3vWuQbKVwXU5oVfn7QgHqi1sJgPN5bFIX9uA/pub?output=csv';
 
@@ -825,6 +824,82 @@
             .catch(error => {
                 console.error('Error membaca data:', error);
                 document.getElementById('amount-po-submission').innerText = "Gagal memuat data";
+            });
+    </script>
+<!-- KODE PENGOLAH DATA JENDERAL SERVIS (VERSI BACA TABEL REKAP) -->
+    <script>
+        // 1. MASUKKAN LINK CSV ANDA DI SINI
+        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYtK3VxhWb9o5TgCgM2OAaJxZR7C3vWuQbKVwXU5oVfn7QgHqi1sJgPN5bFIX9uA/pub?output=csv';
+
+        fetch(urlCSV)
+            .then(response => response.text())
+            .then(data => {
+                // Fungsi pembaca CSV (Mampu membaca angka koma Indonesia di dalam tabel)
+                function parseCSVRow(str) {
+                    let arr = [];
+                    let quote = false;
+                    let col = '';
+                    for (let i = 0; i < str.length; i++) {
+                        let c = str[i];
+                        if (c === '"' && str[i+1] === '"') { col += '"'; i++; }
+                        else if (c === '"') { quote = !quote; }
+                        else if (c === ',' && !quote) { arr.push(col); col = ''; }
+                        else { col += c; }
+                    }
+                    arr.push(col);
+                    return arr;
+                }
+
+                // Fungsi pembersih angka (Mengubah 10.896.250,00 menjadi format yang dipahami komputer)
+                function bersihkanAngka(teks) {
+                    if (!teks) return 0;
+                    let bersih = teks.replace(/\./g, ''); // Hapus titik ribuan
+                    bersih = bersih.replace(/,/g, '.');   // Ubah koma jadi titik desimal
+                    let angka = parseFloat(bersih);
+                    return isNaN(angka) ? 0 : angka;
+                }
+
+                // Fungsi perias angka kembali ke Rupiah
+                const formatRupiah = (angka) => {
+                    return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
+                };
+
+                const rows = data.split('\n');
+
+                // Membaca setiap baris Excel Anda
+                for (let i = 0; i < rows.length; i++) {
+                    let rowText = rows[i].trim();
+                    if (rowText === '') continue;
+
+                    let kolom = parseCSVRow(rowText);
+                    
+                    // Kita cari nama tahapan di Kolom KETERANGAN (Kolom ke-2)
+                    let keterangan = kolom[1] ? kolom[1].toUpperCase() : '';
+                    
+                    // Kita sedot angka di Kolom TOTAL (Kolom paling ujung kanan)
+                    let teksTotal = kolom[kolom.length - 1]; 
+                    let nominal = bersihkanAngka(teksTotal);
+
+                    // Menyalurkan angka ke masing-masing kotak Dashboard yang tepat
+                    if (keterangan.includes('PO SUBMISSION')) {
+                        document.getElementById('amount-po-submission').innerText = formatRupiah(nominal);
+                    } 
+                    else if (keterangan.includes('PO ISSUED')) {
+                        document.getElementById('amount-po-issued').innerText = formatRupiah(nominal);
+                    }
+                    else if (keterangan.includes('WAN SUBMISSION')) {
+                        document.getElementById('amount-wan-submission').innerText = formatRupiah(nominal);
+                    }
+                    else if (keterangan.includes('WAN ISSUED')) {
+                        document.getElementById('amount-wan-issued').innerText = formatRupiah(nominal);
+                    }
+                    else if (keterangan.includes('INVOICE SUMISSION') || keterangan.includes('INVOICE SUBMISSION')) {
+                        document.getElementById('amount-invoice-submission').innerText = formatRupiah(nominal);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error membaca data:', error);
             });
     </script>
 </body>
