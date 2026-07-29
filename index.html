@@ -770,7 +770,63 @@
     <!-- Page level custom scripts -->
     <script src="js/demo/chart-area-demo.js"></script>
     <script src="js/demo/chart-pie-demo.js"></script>
+<!-- KODE PENGOLAH DATA JENDERAL SERVIS -->
+    <script>
+        // 1. MASUKKAN LINK CSV ANDA DI SINI (Biarkan tanda kutipnya tetap ada)
+        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYtK3VxhWb9o5TgCgM2OAaJxZR7C3vWuQbKVwXU5oVfn7QgHqi1sJgPN5bFIX9uA/pub?output=csv';
 
+        fetch(urlCSV)
+            .then(response => response.text())
+            .then(data => {
+                const rows = data.split('\n');
+
+                // Siapkan wadah untuk menjumlahkan angka
+                let poSubmission = 0;
+                let poIssued = 0;
+                let wanSubmission = 0;
+                let wanIssued = 0;
+                let invoiceSubmission = 0;
+
+                // Membaca data baris demi baris (mulai dari baris kedua)
+                for (let i = 1; i < rows.length; i++) {
+                    if (rows[i].trim() === '') continue; // Abaikan baris kosong
+                    
+                    // Pecah baris menjadi kolom-kolom
+                    const columns = rows[i].split(',');
+
+                    // ASUMSI: Kolom Status ada di urutan C (index 2) dan Nominal di D (index 3)
+                    // (Index dihitung dari 0: A=0, B=1, C=2, D=3)
+                    const status = columns[2] ? columns[2].trim().toUpperCase() : '';
+                    let nominalStr = columns[3] ? columns[3].replace(/[^0-9.-]+/g, "") : '0';
+                    let nominal = parseFloat(nominalStr);
+
+                    if (isNaN(nominal)) nominal = 0;
+
+                    // Sortir dan jumlahkan berdasarkan status pekerjaannya
+                    if (status.includes('PENGAJUAN PO')) poSubmission += nominal;
+                    else if (status.includes('TERBIT PO')) poIssued += nominal;
+                    else if (status.includes('PENGAJUAN WAN')) wanSubmission += nominal;
+                    else if (status.includes('TERBIT WAN') || status.includes('PROSES INVOICE')) wanIssued += nominal;
+                    else if (status.includes('SUDAH INVOICE')) invoiceSubmission += nominal;
+                }
+
+                // Alat untuk mengubah angka polos menjadi format Rupiah otomatis
+                const formatRupiah = (angka) => {
+                    return 'Rp ' + angka.toLocaleString('id-ID');
+                };
+
+                // Tembakkan hasil penjumlahan ke kotak Dashboard
+                document.getElementById('amount-po-submission').innerText = formatRupiah(poSubmission);
+                document.getElementById('amount-po-issued').innerText = formatRupiah(poIssued);
+                document.getElementById('amount-wan-submission').innerText = formatRupiah(wanSubmission);
+                document.getElementById('amount-wan-issued').innerText = formatRupiah(wanIssued);
+                document.getElementById('amount-invoice-submission').innerText = formatRupiah(invoiceSubmission);
+            })
+            .catch(error => {
+                console.error('Error membaca data:', error);
+                document.getElementById('amount-po-submission').innerText = "Gagal memuat data";
+            });
+    </script>
 </body>
 
 </html>
