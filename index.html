@@ -826,7 +826,7 @@
                 document.getElementById('amount-po-submission').innerText = "Gagal memuat data";
             });
     </script>
-<!-- KODE PENGOLAH DATA JENDERAL SERVIS (VERSI BACA TABEL REKAP) -->
+<!-- KODE PENGOLAH DATA JENDERAL SERVIS (VERSI KOLOM G) -->
     <script>
         // 1. MASUKKAN LINK CSV ANDA DI SINI
         const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTYtK3VxhWb9o5TgCgM2OAaJxZR7C3vWuQbKVwXU5oVfn7QgHqi1sJgPN5bFIX9uA/pub?output=csv';
@@ -834,7 +834,6 @@
         fetch(urlCSV)
             .then(response => response.text())
             .then(data => {
-                // Fungsi pembaca CSV (Mampu membaca angka koma Indonesia di dalam tabel)
                 function parseCSVRow(str) {
                     let arr = [];
                     let quote = false;
@@ -850,52 +849,37 @@
                     return arr;
                 }
 
-                // Fungsi pembersih angka (Mengubah 10.896.250,00 menjadi format yang dipahami komputer)
                 function bersihkanAngka(teks) {
                     if (!teks) return 0;
-                    let bersih = teks.replace(/\./g, ''); // Hapus titik ribuan
-                    bersih = bersih.replace(/,/g, '.');   // Ubah koma jadi titik desimal
+                    let bersih = teks.replace(/\./g, '').replace(/,/g, '.');
                     let angka = parseFloat(bersih);
                     return isNaN(angka) ? 0 : angka;
                 }
 
-                // Fungsi perias angka kembali ke Rupiah
                 const formatRupiah = (angka) => {
                     return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
                 };
 
                 const rows = data.split('\n');
-
-                // Membaca setiap baris Excel Anda
+                let matrix = [];
                 for (let i = 0; i < rows.length; i++) {
-                    let rowText = rows[i].trim();
-                    if (rowText === '') continue;
+                    matrix.push(parseCSVRow(rows[i].trim()));
+                }
 
-                    let kolom = parseCSVRow(rowText);
-                    
-                    // Kita cari nama tahapan di Kolom KETERANGAN (Kolom ke-2)
-                    let keterangan = kolom[1] ? kolom[1].toUpperCase() : '';
-                    
-                    // Kita sedot angka di Kolom TOTAL (Kolom paling ujung kanan)
-                    let teksTotal = kolom[kolom.length - 1]; 
-                    let nominal = bersihkanAngka(teksTotal);
+                // Baris 7 sampai 11, dengan Kolom TOTAL berada di Kolom G (Index 6):
+                if (matrix.length > 11) {
+                    let invoiceSub = bersihkanAngka(matrix[6] ? matrix[6][6] : 0); // Baris 7, Kolom G
+                    let wanIssued  = bersihkanAngka(matrix[7] ? matrix[7][6] : 0); // Baris 8, Kolom G
+                    let wanSub     = bersihkanAngka(matrix[8] ? matrix[8][6] : 0); // Baris 9, Kolom G
+                    let poIssued   = bersihkanAngka(matrix[9] ? matrix[9][6] : 0); // Baris 10, Kolom G
+                    let poSub      = bersihkanAngka(matrix[10] ? matrix[10][6] : 0); // Baris 11, Kolom G
 
-                    // Menyalurkan angka ke masing-masing kotak Dashboard yang tepat
-                    if (keterangan.includes('PO SUBMISSION')) {
-                        document.getElementById('amount-po-submission').innerText = formatRupiah(nominal);
-                    } 
-                    else if (keterangan.includes('PO ISSUED')) {
-                        document.getElementById('amount-po-issued').innerText = formatRupiah(nominal);
-                    }
-                    else if (keterangan.includes('WAN SUBMISSION')) {
-                        document.getElementById('amount-wan-submission').innerText = formatRupiah(nominal);
-                    }
-                    else if (keterangan.includes('WAN ISSUED')) {
-                        document.getElementById('amount-wan-issued').innerText = formatRupiah(nominal);
-                    }
-                    else if (keterangan.includes('INVOICE SUMISSION') || keterangan.includes('INVOICE SUBMISSION')) {
-                        document.getElementById('amount-invoice-submission').innerText = formatRupiah(nominal);
-                    }
+                    // Tembakkan ke Dashboard
+                    document.getElementById('amount-invoice-submission').innerText = formatRupiah(invoiceSub);
+                    document.getElementById('amount-wan-issued').innerText = formatRupiah(wanIssued);
+                    document.getElementById('amount-wan-submission').innerText = formatRupiah(wanSub);
+                    document.getElementById('amount-po-issued').innerText = formatRupiah(poIssued);
+                    document.getElementById('amount-po-submission').innerText = formatRupiah(poSub);
                 }
             })
             .catch(error => {
