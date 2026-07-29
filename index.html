@@ -895,66 +895,80 @@
 
                     
                    
-<!-- KODE PENGOLAH DATA JENDERAL SERVIS (VERSI KOLOM G) -->
-    <script>
-        // 1. MASUKKAN LINK CSV ANDA DI SINI
-        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv';
+<!-- KODE PENGOLAH DATA JENDERAL SERVIS (VERSI LENGKAP) -->
+<script>
+    // 1. MASUKKAN LINK CSV ANDA DI SINI
+    const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv'; 
 
-        fetch(urlCSV)
-            .then(response => response.text())
-            .then(data => {
-                function parseCSVRow(str) {
-                    let arr = [];
-                    let quote = false;
-                    let col = '';
-                    for (let i = 0; i < str.length; i++) {
-                        let c = str[i];
-                        if (c === '"' && str[i+1] === '"') { col += '"'; i++; }
-                        else if (c === '"') { quote = !quote; }
-                        else if (c === ',' && !quote) { arr.push(col); col = ''; }
-                        else { col += c; }
+    fetch(urlCSV)
+        .then(response => response.text())
+        .then(data => {
+            function parseCSVRow(str) {
+                let arr = [];
+                let row = [];
+                let inQuote = false;
+                let entry = '';
+                for (let i = 0; i < str.length; i++) {
+                    let c = str[i];
+                    if (c === '"') {
+                        inQuote = !inQuote;
+                    } else if (c === ',' && !inQuote) {
+                        row.push(entry);
+                        entry = '';
+                    } else if (c === '\n' || c === '\r') {
+                        row.push(entry);
+                        arr.push(row);
+                        row = [];
+                        entry = '';
+                        if (c === '\r' && str[i + 1] === '\n') { i++; }
+                    } else {
+                        entry += c;
                     }
-                    arr.push(col);
-                    return arr;
                 }
-
-                function bersihkanAngka(teks) {
-                    if (!teks) return 0;
-                    let bersih = teks.replace(/\./g, '').replace(/,/g, '.');
-                    let angka = parseFloat(bersih);
-                    return isNaN(angka) ? 0 : angka;
+                if (entry !== '' || row.length > 0) {
+                    row.push(entry);
+                    arr.push(row);
                 }
+                return arr;
+            }
 
-                const formatRupiah = (angka) => {
-                    return 'Rp ' + Math.round(angka).toLocaleString('id-ID');
-                };
+            let rows = parseCSVRow(data);
 
-                const rows = data.split('\n');
-                let matrix = [];
-                for (let i = 0; i < rows.length; i++) {
-                    matrix.push(parseCSVRow(rows[i].trim()));
+            // Fungsi pembantu untuk mengambil data dari baris dan kolom tertentu (Indeks mulai dari 0)
+            // Baris ke-5 Excel = Indeks 4 | Kolom G (ke-7) = Indeks 6
+            function getData(rowIndex, colIndex) {
+                if (rows[rowIndex] && rows[rowIndex][colIndex] !== undefined) {
+                    let val = rows[rowIndex][colIndex].trim();
+                    return val === "" ? "Rp 0" : val;
                 }
+                return "Rp 0";
+            }
 
-                // Baris 7 sampai 11, dengan Kolom TOTAL berada di Kolom G (Index 6):
-                if (matrix.length > 11) {
-                    let invoiceSub = bersihkanAngka(matrix[6] ? matrix[6][6] : 0); // Baris 7, Kolom G
-                    let wanIssued  = bersihkanAngka(matrix[7] ? matrix[7][6] : 0); // Baris 8, Kolom G
-                    let wanSub     = bersihkanAngka(matrix[8] ? matrix[8][6] : 0); // Baris 9, Kolom G
-                    let poIssued   = bersihkanAngka(matrix[9] ? matrix[9][6] : 0); // Baris 10, Kolom G
-                    let poSub      = bersihkanAngka(matrix[10] ? matrix[10][6] : 0); // Baris 11, Kolom G
+            // Membaca data sesuai permintaan Anda (Baris Excel dikurangi 1 untuk indeks JavaScript)
+            let contractVal = getData(4, 6);       // Baris 5, Kolom G (Contract Value)
+            let contractReal = getData(11, 6);     // Baris 12, Kolom G (Contract Realization)
+            let remainingVal = getData(12, 6);     // Baris 13, Kolom G (Remaining Contract Value)
+            let invoiceSub = getData(6, 6);        // Baris 7, Kolom G (Invoice Submission)
+            let wanIssued = getData(7, 6);         // Baris 8, Kolom G (WAN Issued)
+            let wanSub = getData(8, 6);            // Baris 9, Kolom G (WAN Submission)
+            let poIssued = getData(9, 6);          // Baris 10, Kolom G (PO Issued)
+            let poSub = getData(10, 6);            // Baris 11, Kolom G (PO Submission)
 
-                    // Tembakkan ke Dashboard
-                    document.getElementById('amount-invoice-submission').innerText = formatRupiah(invoiceSub);
-                    document.getElementById('amount-wan-issued').innerText = formatRupiah(wanIssued);
-                    document.getElementById('amount-wan-submission').innerText = formatRupiah(wanSub);
-                    document.getElementById('amount-po-issued').innerText = formatRupiah(poIssued);
-                    document.getElementById('amount-po-submission').innerText = formatRupiah(poSub);
-                }
-            })
-            .catch(error => {
-                console.error('Error membaca data:', error);
-            });
-    </script>
+            // Memasukkan angka ke dalam tampilan Dashboard
+            // (Kotak Lama)
+            document.getElementById('val-invoice').innerText = "Rp " + invoiceSub;
+            document.getElementById('val-wan-issued').innerText = "Rp " + wanIssued;
+            document.getElementById('val-wan-sub').innerText = "Rp " + wanSub;
+            document.getElementById('val-po-issued').innerText = "Rp " + poIssued;
+            document.getElementById('val-po-sub').innerText = "Rp " + poSub;
+
+            // (3 Kotak Baru Tambahan)
+            document.getElementById('val-contract').innerText = "Rp " + contractVal;
+            document.getElementById('val-realization').innerText = "Rp " + contractReal;
+            document.getElementById('val-remaining').innerText = "Rp " + remainingVal;
+        })
+        .catch(error => console.error('Gagal memuat data:', error));
+</script>
 </body>
 
 </html>
