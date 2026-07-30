@@ -263,7 +263,7 @@
     <!-- KODE JAVASCRIPT MASTER LIST HORIZONTAL DINAMIS -->
     <script>
         // TEMPATKAN LINK CSV PUBLISH DARI GOOGLE SHEET "MASTER LIST" ANDA DI SINI:
-        const MASTER_CSV_URL = "MASUKKAN_LINK_CSV_MASTER_LIST_ANDA_DI_SINI";
+        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQsY4MeumyktjhWZNMWZkXe50Ye6NVqOE_0LLTl-Pp5oDZtsgkvN2Q0Qd9E6_4jx0bLk1GtoxC7dlgJ/pub?gid=1145711556&single=true&output=csv";
 
         let masterContractData = {};
 
@@ -297,8 +297,10 @@
         }
 
         function formatRupiah(angka) {
-            if (!angka || isNaN(angka)) return "Rp 0";
-            let num = parseFloat(angka);
+            if (!angka) return "Rp 0";
+            let cleanStr = String(angka).trim();
+            let num = parseFloat(cleanStr);
+            if (isNaN(num)) return "Rp 0";
             return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
@@ -319,80 +321,16 @@
 
                     masterContractData = {};
 
+                    // Loop otomatis membaca baris data kontrak yang valid berdasarkan angka nomor kontrak di kolom pertama
                     for (let i = 0; i < rows.length; i++) {
                         let r = rows[i];
                         if (!r || r.length < 11) continue;
+                        
                         let contractNum = r[0] ? r[0].trim() : "";
                         
+                        // Pastikan kolom pertama adalah angka nomor kontrak
                         if (!/^\d+$/.test(contractNum)) continue;
 
-                        let contractObj = {
-                            contractNumber: contractNum,
-                            contractName: r[1] ? r[1].trim() : "",
-                            startDate: r[3] ? r[3].trim() : "",
-                            endDate: r[4] ? r[4].trim() : "",
-                            remainingDays: r[6] ? r[6].trim() : "0",
-                            status: r[7] ? r[7].trim() : "",
-                            remainingValue: r[8] ? r[8].trim().replace(",", ".") : "0",
-                            realization: r[9] ? r[9].trim().replace(",", ".") : "0",
-                            volume: r[10] ? r[10].trim().replace(",", ".") : "0",
-                            invoiceSub: r[11] ? r[11].trim().replace(",", ".") : "0",
-                            wanIssued: r[12] ? r[12].trim().replace(",", ".") : "0",
-                            wanSub: r[13] ? r[13].trim().replace(",", ".") : "0",
-                            poIssued: r[14] ? r[14].trim().replace(",", ".") : "0",
-                            poSub: r[15] ? r[15].trim().replace(",", ".") : "0",
-                            editUrl: r[16] && r[16].trim() !== "" ? r[16].trim() : "#"
-                        };
-
-                        masterContractData[contractNum] = contractObj;
-
-                        let opt = document.createElement('option');
-                        opt.value = contractNum;
-                        opt.text = contractNum + " - " + contractObj.contractName.substring(0, 45) + "...";
-                        select.appendChild(opt);
-                    }
-
-                    let firstKeys = Object.keys(masterContractData);
-                    if (firstKeys.length > 0) {
-                        select.value = firstKeys[0];
-                        displayContractData(firstKeys[0]);
-                    }
-                })
-                .catch(error => console.error('Gagal memuat Master List:', error));
-        }
-
-            fetch(MASTER_CSV_URL)
-                .then(response => response.text())
-                .then(data => {
-                    let rows = parseCSVRow(data);
-                    if (rows.length < 2) return;
-
-                    let select = document.getElementById('contractSelect');
-                    select.innerHTML = ""; 
-
-                    masterContractData = {};
-
-                    // Berdasarkan file Master List CSV horizontal Anda:
-                    // Col 0: Contract Number
-                    // Col 1: Contract Name
-                    // Col 3: Start Date
-                    // Col 4: End Date
-                    // Col 6: Remaining Days
-                    // Col 7: Status
-                    // Col 8: Remaining Contract Value
-                    // Col 9: Contract Realization
-                    // Col 10: Contract Volume (Contract Volue)
-                    // Col 11: Invoice Submission
-                    // Col 12: WAN Issued
-                    // Col 13: WAN Submission
-                    // Col 14: PO Issued
-                    // Col 15: PO Submission
-                    // Col 16: Link Editing-Updating
-                    for (let i = 1; i < rows.length; i++) {
-                        let r = rows[i];
-                        if (r.length < 11 || !r[0].trim()) continue;
-
-                        let contractNum = r[0].trim();
                         let contractObj = {
                             contractNumber: contractNum,
                             contractName: r[1] ? r[1].trim() : "",
