@@ -260,10 +260,10 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT PEMBACA VERTIKAL OTOMATIS -->
+    <!-- KODE JAVASCRIPT PEMBACA LAYOUT VERTIKAL PRESISI -->
     <script>
         // TEMPATKAN LINK CSV PUBLISH DARI GOOGLE SHEET ANDA DI SINI:
-        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQsY4MeumyktjhWZNMWZkXe50Ye6NVqOE_0LLTl-Pp5oDZtsgkvN2Q0Qd9E6_4jx0bLk1GtoxC7dlgJ/pub?gid=1145711556&single=true&output=csv";
+        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv";
 
         let contractData = {};
 
@@ -299,7 +299,7 @@
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
-            // Jika format Indonesia menggunakan titik sebagai ribuan dan koma sebagai desimal
+            // Menghilangkan pemisah ribuan titik (.) dan mengubah koma desimal (,) menjadi titik (.)
             s = s.replace(/\./g, "").replace(",", ".");
             let num = parseFloat(s);
             return isNaN(num) ? 0 : num;
@@ -315,7 +315,7 @@
                 .then(response => response.text())
                 .then(data => {
                     let rows = parseCSVRow(data);
-                    if (rows.length < 2) return;
+                    if (rows.length < 5) return;
 
                     let select = document.getElementById('contractSelect');
                     select.innerHTML = ""; 
@@ -332,35 +332,39 @@
                     let wanSub = 0;
                     let poIssued = 0;
                     let poSub = 0;
+                    let contractRealization = 0;
+                    let remainingContractVal = 0;
 
-                    // Melakukan pencarian baris secara cerdas berdasarkan kata kunci di kolom manapun
+                    // Mapping berdasarkan layout vertikal Google Sheet Anda (Kolom B untuk Label, Kolom G untuk Total)
                     for (let i = 0; i < rows.length; i++) {
                         let rowText = rows[i].join(" ").toLowerCase();
-                        
-                        if (rowText.includes("contract number") || rowText.includes("7203250036")) {
+
+                        if (rowText.includes("contract number")) {
                             for (let cell of rows[i]) {
-                                if (cell && cell.trim().length > 5 && !cell.toLowerCase().includes("contract")) {
+                                if (cell && cell.trim().length >= 8 && /^\d+$/.test(cell.trim())) {
                                     contractNum = cell.trim();
                                 }
                             }
                         }
-                        if (rowText.includes("contract name") || rowText.includes("penyediaan jasa")) {
-                            for (let cell of rows[i]) {
-                                if (cell && cell.trim().length > 10) {
-                                    contractName = cell.trim();
-                                }
-                            }
+                        if (rowText.includes("contract name")) {
+                            // Ambil teks nama kontrak yang digabung dari baris ini dan baris berikutnya
+                            let nameParts = [];
+                            if (rows[i]) nameParts.push(rows[i].join(" "));
+                            if (rows[i+1]) nameParts.push(rows[i+1].join(" "));
+                            let combined = nameParts.join(" ");
+                            let match = combined.match(/Penyediaan[^\n,]+/i);
+                            if (match) contractName = match[0].trim();
                         }
                         if (rowText.includes("start")) {
                             for (let cell of rows[i]) {
-                                if (cell && cell.trim().match(/\d{4}-\d{2}-\d{2}/)) {
+                                if (cell && cell.trim().match(/\d{1,2}\s+[A-Za-z]+\s+\d{4}/)) {
                                     startDate = cell.trim();
                                 }
                             }
                         }
-                        if (rowText.includes("end") || rowText.includes("completion")) {
+                        if (rowText.includes("end")) {
                             for (let cell of rows[i]) {
-                                if (cell && cell.trim().match(/\d{4}-\d{2}-\d{2}/)) {
+                                if (cell && cell.trim().match(/\d{1,2}\s+[A-Za-z]+\s+\d{4}/)) {
                                     endDate = cell.trim();
                                 }
                             }
@@ -373,38 +377,46 @@
                                 }
                             }
                         }
-                        if (rowText.includes("contract value") || rowText.includes("contract volue")) {
-                            // Ambil angka terakhir di baris tersebut
-                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
-                            if (vals.length > 0) contractVol = cleanNumber(vals[vals.length - 1]);
+
+                        // Membaca baris nominal berdasarkan deskripsi di Kolom B dan nilai di Kolom G (index 6 atau elemen terakhir yang valid)
+                        if (rowText.includes("contract volue") || rowText.includes("contract value")) {
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) contractVol = cleanNumber(validNums[validNums.length - 1]);
                         }
                         if (rowText.includes("invoice submission")) {
-                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
-                            if (vals.length > 0) invoiceSub = cleanNumber(vals[vals.length - 1]);
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) invoiceSub = cleanNumber(validNums[validNums.length - 1]);
                         }
                         if (rowText.includes("wan issued")) {
-                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
-                            if (vals.length > 0) wanIssued = cleanNumber(vals[vals.length - 1]);
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) wanIssued = cleanNumber(validNums[validNums.length - 1]);
                         }
                         if (rowText.includes("wan submission")) {
-                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
-                            if (vals.length > 0) wanSub = cleanNumber(vals[vals.length - 1]);
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) wanSub = cleanNumber(validNums[validNums.length - 1]);
                         }
                         if (rowText.includes("po issued")) {
-                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
-                            if (vals.length > 0) poIssued = cleanNumber(vals[vals.length - 1]);
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) poIssued = cleanNumber(validNums[validNums.length - 1]);
                         }
                         if (rowText.includes("po submission")) {
-                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
-                            if (vals.length > 0) poSub = cleanNumber(vals[vals.length - 1]);
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) poSub = cleanNumber(validNums[validNums.length - 1]);
+                        }
+                        if (rowText.includes("contract realization")) {
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) contractRealization = cleanNumber(validNums[validNums.length - 1]);
+                        }
+                        if (rowText.includes("remaining contract value")) {
+                            let validNums = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (validNums.length > 0) remainingContractVal = cleanNumber(validNums[validNums.length - 1]);
                         }
                     }
 
-                    // Jika nilai kontrak belum terbaca otomatis, gunakan nilai default dari file Anda
-                    if (contractVol === 0) contractVol = 1971460000;
-
-                    let realTotal = invoiceSub + wanIssued + wanSub + poIssued + poSub;
-                    let remVal = contractVol - realTotal;
+                    // Fallback nilai jika terbaca kosong
+                    if (contractVol === 0) contractVol = 1971459000;
+                    if (contractRealization === 0) contractRealization = invoiceSub + wanIssued + wanSub + poIssued + poSub;
+                    if (remainingContractVal === 0) remainingContractVal = contractVol - contractRealization;
 
                     contractData[contractNum] = {
                         contractNumber: contractNum,
@@ -413,8 +425,8 @@
                         endDate: endDate,
                         remainingDays: remainingDays,
                         volume: contractVol,
-                        realization: realTotal,
-                        remainingValue: remVal,
+                        realization: contractRealization,
+                        remainingValue: remainingContractVal,
                         invoiceSub: invoiceSub,
                         wanIssued: wanIssued,
                         wanSub: wanSub,
