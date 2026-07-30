@@ -304,11 +304,59 @@
             return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        function initDashboard() {
-            if (MASTER_CSV_URL.includes("https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv")) {
-                alert("Harap masukkan link CSV Master List Google Sheet Anda pada variabel MASTER_CSV_URL di kode HTML!");
-                return;
-            }
+       function initDashboard() {
+            fetch(MASTER_CSV_URL)
+                .then(response => response.text())
+                .then(data => {
+                    let rows = parseCSVRow(data);
+                    if (rows.length < 5) return;
+
+                    let select = document.getElementById('contractSelect');
+                    select.innerHTML = ""; 
+
+                    let contractNum = rows[1] && rows[1][1] ? rows[1][1].trim() : "7203250036";
+                    let contractName = rows[2] && rows[2][1] ? rows[2][1].trim() : "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
+                    let startDate = rows[4] && rows[4][1] ? rows[4][1].trim() : "";
+                    let endDate = rows[5] && rows[5][1] ? rows[5][1].trim() : "";
+                    let remainingDays = rows[6] && rows[6][1] ? rows[6][1].trim() : "0";
+
+                    let contractVol = rows[8] && rows[8][5] ? rows[8][5].trim() : "0";
+                    let invoiceSub = rows[9] && rows[9][5] ? rows[9][5].trim() : "0";
+                    let wanIssued = rows[10] && rows[10][5] ? rows[10][5].trim() : "0";
+                    let wanSub = rows[11] && rows[11][5] ? rows[11][5].trim() : "0";
+                    let poIssued = rows[12] && rows[12][5] ? rows[12][5].trim() : "0";
+                    let poSub = rows[13] && rows[13][5] ? rows[13][5].trim() : "0";
+
+                    let realTotal = parseFloat(invoiceSub || 0) + parseFloat(wanIssued || 0) + parseFloat(wanSub || 0) + parseFloat(poIssued || 0) + parseFloat(poSub || 0);
+                    let remVal = parseFloat(contractVol || 0) - realTotal;
+
+                    contractData[contractNum] = {
+                        contractNumber: contractNum,
+                        contractName: contractName,
+                        startDate: startDate,
+                        endDate: endDate,
+                        remainingDays: remainingDays,
+                        volume: contractVol,
+                        realization: realTotal,
+                        remainingValue: remVal,
+                        invoiceSub: invoiceSub,
+                        wanIssued: wanIssued,
+                        wanSub: wanSub,
+                        poIssued: poIssued,
+                        poSub: poSub,
+                        editUrl: "#"
+                    };
+
+                    let opt = document.createElement('option');
+                    opt.value = contractNum;
+                    opt.text = contractNum + " - " + contractName.substring(0, 45) + "...";
+                    select.appendChild(opt);
+
+                    select.value = contractNum;
+                    displayContractData(contractNum);
+                })
+                .catch(error => console.error('Gagal memuat Master List:', error));
+        }
 
             fetch(MASTER_CSV_URL)
                 .then(response => response.text())
