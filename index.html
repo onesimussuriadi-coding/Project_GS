@@ -298,7 +298,6 @@
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
-            // Membersihkan format angka Indonesia (titik sebagai ribuan, koma sebagai desimal)
             s = s.replace(/\./g, "").replace(",", ".");
             let num = parseFloat(s);
             return isNaN(num) ? 0 : num;
@@ -319,26 +318,27 @@
                     let select = document.getElementById('contractSelect');
                     select.innerHTML = ""; 
 
-                    // PEMETAAN BERDASARKAN KOORDINAT SEL EXCEL ANDA:
-                    // Baris 1 (Index 1): Contract Number -> Kolom C (Index 2)
-                    // Baris 2 (Index 2): Contract Name -> Kolom C (Index 2)
-                    // Baris 3 (Index 3): Start Date -> Kolom C (Index 2)
-                    // Baris 4 (Index 4): Completion Date / End -> Kolom C (Index 2)
-                    // Baris 5 (Index 5): Remaining Day(s) -> Kolom C (Index 2) = 491
-                    // Baris 8 (Index 8): Contract Value -> Kolom G (Index 6)
-                    // Baris 9 (Index 9): Invoice Submission -> Kolom G (Index 6)
-                    // Baris 10 (Index 10): WAN Issued -> Kolom G (Index 6)
-                    // Baris 11 (Index 11): WAN Submission -> Kolom G (Index 6)
-                    // Baris 12 (Index 12): PO Issued -> Kolom G (Index 6)
-                    // Baris 13 (Index 13): PO Submission -> Kolom G (Index 6)
-                    // Baris 14 (Index 14): Contract Realization -> Kolom G (Index 6)
-                    // Baris 15 (Index 15): Remaining Contract Value -> Kolom G (Index 6)
+                    // PEMETAAN KOORDINAT SEL EXCEL YANG DIKOREKSI:
+                    // Row 1 (Index 1): Contract Number -> Kolom C (Index 2)
+                    // Row 2 (Index 2): Contract Name -> Kolom C (Index 2)
+                    // Row 3 (Index 3): Contract Date -> Kolom C (Index 2)
+                    // Row 4 (Index 4): Start (C5) -> Kolom C (Index 2)
+                    // Row 5 (Index 5): End (C6) -> Kolom C (Index 2)
+                    // Row 6 (Index 6): Remaining Day(s) (C7) -> Kolom C (Index 2)
+                    // Row 8 (Index 8): Contract Value -> Kolom G (Index 6)
+                    // Row 9 (Index 9): Invoice Submission -> Kolom G (Index 6)
+                    // Row 10 (Index 10): WAN Issued -> Kolom G (Index 6)
+                    // Row 11 (Index 11): WAN Submission -> Kolom G (Index 6)
+                    // Row 12 (Index 12): PO Issued -> Kolom G (Index 6)
+                    // Row 13 (Index 13): PO Submission -> Kolom G (Index 6)
+                    // Row 14 (Index 14): Contract Realization -> Kolom G (Index 6)
+                    // Row 15 (Index 15): Remaining Contract Value -> Kolom G (Index 6)
 
                     let contractNum = rows[1] && rows[1][2] ? rows[1][2].trim() : "7203250036";
                     let contractName = rows[2] && rows[2][2] ? rows[2][2].trim() : "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
-                    let startDate = rows[3] && rows[3][2] ? rows[3][2].trim() : "9 Jun 2025";
-                    let endDate = rows[4] && rows[4][2] ? rows[4][2].trim() : "3 Des 2027";
-                    let remainingDays = rows[5] && rows[5][2] ? rows[5][2].trim() : "491";
+                    let startDate = rows[4] && rows[4][2] ? rows[4][2].trim() : "9 Jun 2025";
+                    let endDate = rows[5] && rows[5][2] ? rows[5][2].trim() : "3 Des 2027";
+                    let remainingDays = rows[6] && rows[6][2] ? rows[6][2].trim() : "491";
 
                     let contractVol = rows[8] && rows[8][6] ? cleanNumber(rows[8][6]) : 1971459000;
                     let invoiceSub = rows[9] && rows[9][6] ? cleanNumber(rows[9][6]) : 0;
