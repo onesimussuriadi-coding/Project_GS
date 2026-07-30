@@ -8,7 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Dashboard General Services</title>
+    <title>Dashboard General Services - Multi Kontrak</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -25,8 +25,6 @@
 
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
-            <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
@@ -34,45 +32,20 @@
                 <div class="sidebar-brand-text mx-3">GENERAL SERVICES</div>
             </a>
 
-            <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
             <li class="nav-item active">
                 <a class="nav-link" href="index.html">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
-            <!-- Divider -->
             <hr class="sidebar-divider">
+            <div class="sidebar-heading">Menu</div>
 
-            <!-- Heading -->
-            <div class="sidebar-heading">Interface</div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                    <i class="fas fa-fw fa-cog"></i>
-                    <span>Components</span>
-                </a>
-                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Custom Components:</h6>
-                        <a class="collapse-item" href="buttons.html">Buttons</a>
-                        <a class="collapse-item" href="cards.html">Cards</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-none d-md-inline">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
-
         </ul>
         <!-- End of Sidebar -->
 
@@ -87,12 +60,9 @@
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
-
-                    <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
-                        <div class="topbar-divider d-none d-sm-block"></div>
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
                                 <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                             </a>
@@ -104,15 +74,48 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
+                    <!-- Page Heading & Dropdown Kontrak -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
-                        <a href="https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=2088051856#gid=2088051856" target="_blank" class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm">
-                            <i class="fas fa-database fa-sm text-white-50"></i> Update Database
-                        </a>
+                        <h1 class="h3 mb-0 text-gray-800">Dashboard Pemantauan Kontrak</h1>
+                        
+                        <!-- PILIHAN KONTRAK (DROPDOWN) -->
+                        <div class="form-inline">
+                            <label class="mr-2 font-weight-bold text-primary" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Contract Number:</label>
+                            <select id="contractSelect" class="form-control form-control-sm font-weight-bold border-primary shadow-sm" onchange="changeContract()">
+                                <option value="7201250141">7201250141 - General Services Pengeboran</option>
+                                <option value="7203250036">7203250036 - Sewa Alat Berat Warehouse</option>
+                                <option value="7207250142">7207250142 - Sewa Alat Berat Senoro & Tiaka</option>
+                                <option value="4710002085">4710002085 - Tenaga Ahli Daya (TAD) Donggi</option>
+                            </select>
+                        </div>
                     </div>
 
-                    <!-- KOTAK UTAMA: 3 KONTROL KONTRAK -->
+                    <!-- KOTAK INFORMASI DETAIL KONTRAK -->
+                    <div class="row mb-4">
+                        <div class="col-xl-12">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Informasi Kontrak Aktif</div>
+                                            <div id="info-contract-name" class="h6 mb-2 font-weight-bold text-gray-800">Memuat Nama Kontrak...</div>
+                                            <div class="row text-muted small">
+                                                <div class="col-md-4">📅 Periode: <span id="info-contract-date" class="font-weight-bold text-dark">-</span></div>
+                                                <div class="col-md-4">⏳ Sisa Waktu: <span id="info-contract-remaining" class="font-weight-bold text-danger">-</span> Hari</div>
+                                                <div class="col-md-4 text-right">
+                                                    <a id="btn-edit-sheet" href="#" target="_blank" class="btn btn-sm btn-success shadow-sm">
+                                                        <i class="fas fa-database fa-sm text-white-50"></i> Proses / Edit Google Sheet
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3 KARTU UTAMA KONTROL KONTRAK -->
                     <div class="row">
                         <!-- Contract Value -->
                         <div class="col-xl-4 col-md-6 mb-4">
@@ -123,9 +126,7 @@
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Contract Value (G5)</div>
                                             <div id="val-contract" class="h5 mb-0 font-weight-bold text-gray-800">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -140,9 +141,7 @@
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Contract Realization (G12)</div>
                                             <div id="val-realization" class="h5 mb-0 font-weight-bold text-gray-800">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-chart-line fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -157,16 +156,14 @@
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Remaining Contract Value (G13)</div>
                                             <div id="val-remaining" class="h5 mb-0 font-weight-bold text-gray-800">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-wallet fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-wallet fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- KOTAK RINCIAN PENYERAPAN -->
+                    <!-- 5 KARTU RINCIAN PENYERAPAN -->
                     <div class="row">
                         <!-- PO Submission -->
                         <div class="col-xl-3 col-md-6 mb-4">
@@ -177,9 +174,7 @@
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">PO Submission</div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800" id="val-po-sub">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-calendar fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -194,9 +189,7 @@
                                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">PO Issued</div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800" id="val-po-issued">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-dollar-sign fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -211,9 +204,7 @@
                                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">WAN Submission</div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800" id="val-wan-sub">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-clipboard-list fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -228,16 +219,14 @@
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">WAN Issued</div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800" id="val-wan-issued">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-comments fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-comments fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Invoice Submission (Baris Kedua) -->
+                    <!-- Baris Tambahan: Invoice Submission -->
                     <div class="row">
                         <div class="col-xl-3 col-md-6 mb-4">
                             <div class="card border-left-warning shadow h-100 py-2">
@@ -247,9 +236,7 @@
                                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Invoice Submission</div>
                                             <div class="h5 mb-0 font-weight-bold text-gray-800" id="val-invoice">Loading...</div>
                                         </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-file-invoice fa-2x text-gray-300"></i>
-                                        </div>
+                                        <div class="col-auto"><i class="fas fa-file-invoice fa-2x text-gray-300"></i></div>
                                     </div>
                                 </div>
                             </div>
@@ -279,73 +266,125 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE PENGOLAH DATA JENDERAL SERVIS -->
+    <!-- KODE LOGIKA DINAMIS MULTI KONTRAK -->
     <script>
-        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv';
+        // Database informasi kontrak (Berdasarkan Master Contract Excel Anda)
+        const contractDatabase = {
+            "7201250141": {
+                name: "Penyediaan General Services Untuk Mendukung Kegiatan Pengeboran, Kerja Ulang dan Perawatan Sumur di Blok Senoro, Toili Sulawesi Tengah",
+                date: "17 Dec 2025 - 3 Dec 2027",
+                remainingDays: "492",
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv",
+                sheetEditUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=2088051856#gid=2088051856"
+            },
+            "7203250036": {
+                name: "Penyediaan Jasa Penyewaan Alat Berat Warehouse",
+                date: "9 Jun 2025 - 3 Dec 2027",
+                remainingDays: "492",
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv", // Ganti dengan link CSV kontrak ini jika sudah ada
+                sheetEditUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit" // Ganti link editnya nanti
+            },
+            "7207250142": {
+                name: "Jasa Sewa Alat Berat Pendukung Operasional Senoro & Tiaka",
+                date: "16 Dec 2025 - 3 Dec 2027",
+                remainingDays: "492",
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv",
+                sheetEditUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit"
+            },
+            "4710002085": {
+                name: "Penyediaan Jasa Tenaga Ahli Daya (TAD) Untuk Menunjang Kebutuhan Operasional Field Donggi Matindok",
+                date: "1 Dec 2025 - 30 Nov 2028",
+                remainingDays: "855",
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv",
+                sheetEditUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit"
+            }
+        };
 
-        fetch(urlCSV)
-            .then(response => response.text())
-            .then(data => {
-                function parseCSVRow(str) {
-                    let arr = [];
-                    let row = [];
-                    let inQuote = false;
-                    let entry = '';
-                    for (let i = 0; i < str.length; i++) {
-                        let c = str[i];
-                        if (c === '"') {
-                            inQuote = !inQuote;
-                        } else if (c === ',' && !inQuote) {
-                            row.push(entry);
-                            entry = '';
-                        } else if (c === '\n' || c === '\r') {
+        function loadContractData(contractId) {
+            const selectedContract = contractDatabase[contractId];
+            if (!selectedContract) return;
+
+            // 1. Perbarui Info Kontrak di HTML
+            document.getElementById('info-contract-name').innerText = selectedContract.name;
+            document.getElementById('info-contract-date').innerText = selectedContract.date;
+            document.getElementById('info-contract-remaining').innerText = selectedContract.remainingDays;
+            document.getElementById('btn-edit-sheet').href = selectedContract.sheetEditUrl;
+
+            // 2. Ambil Data CSV Sesuai Kontrak yang Dipilih
+            fetch(selectedContract.csvUrl)
+                .then(response => response.text())
+                .then(data => {
+                    function parseCSVRow(str) {
+                        let arr = [];
+                        let row = [];
+                        let inQuote = false;
+                        let entry = '';
+                        for (let i = 0; i < str.length; i++) {
+                            let c = str[i];
+                            if (c === '"') {
+                                inQuote = !inQuote;
+                            } else if (c === ',' && !inQuote) {
+                                row.push(entry);
+                                entry = '';
+                            } else if (c === '\n' || c === '\r') {
+                                row.push(entry);
+                                arr.push(row);
+                                row = [];
+                                entry = '';
+                                if (c === '\r' && str[i + 1] === '\n') { i++; }
+                            } else {
+                                entry += c;
+                            }
+                        }
+                        if (entry !== '' || row.length > 0) {
                             row.push(entry);
                             arr.push(row);
-                            row = [];
-                            entry = '';
-                            if (c === '\r' && str[i + 1] === '\n') { i++; }
-                        } else {
-                            entry += c;
                         }
+                        return arr;
                     }
-                    if (entry !== '' || row.length > 0) {
-                        row.push(entry);
-                        arr.push(row);
+
+                    let rows = parseCSVRow(data);
+
+                    function getData(rowIndex, colIndex) {
+                        if (rows[rowIndex] && rows[rowIndex][colIndex] !== undefined) {
+                            let val = rows[rowIndex][colIndex].trim();
+                            return val === "" ? "Rp 0" : val;
+                        }
+                        return "Rp 0";
                     }
-                    return arr;
-                }
 
-                let rows = parseCSVRow(data);
+                    let contractVal = getData(4, 6);       
+                    let contractReal = getData(11, 6);     
+                    let remainingVal = getData(12, 6);     
+                    let invoiceSub = getData(6, 6);        
+                    let wanIssued = getData(7, 6);         
+                    let wanSub = getData(8, 6);            
+                    let poIssued = getData(9, 6);          
+                    let poSub = getData(10, 6);            
 
-                function getData(rowIndex, colIndex) {
-                    if (rows[rowIndex] && rows[rowIndex][colIndex] !== undefined) {
-                        let val = rows[rowIndex][colIndex].trim();
-                        return val === "" ? "Rp 0" : val;
-                    }
-                    return "Rp 0";
-                }
+                    // Tampilkan ke Dashboard
+                    document.getElementById('val-contract').innerText = "Rp " + contractVal;
+                    document.getElementById('val-realization').innerText = "Rp " + contractReal;
+                    document.getElementById('val-remaining').innerText = "Rp " + remainingVal;
+                    document.getElementById('val-invoice').innerText = "Rp " + invoiceSub;
+                    document.getElementById('val-wan-issued').innerText = "Rp " + wanIssued;
+                    document.getElementById('val-wan-sub').innerText = "Rp " + wanSub;
+                    document.getElementById('val-po-issued').innerText = "Rp " + poIssued;
+                    document.getElementById('val-po-sub').innerText = "Rp " + poSub;
+                })
+                .catch(error => console.error('Gagal memuat data:', error));
+        }
 
-                // Membaca data sel yang diminta (Baris Excel dikurangi 1 untuk indeks JavaScript)
-                let contractVal = getData(4, 6);       // Baris 5, Kolom G (Contract Value)
-                let contractReal = getData(11, 6);     // Baris 12, Kolom G (Contract Realization)
-                let remainingVal = getData(12, 6);     // Baris 13, Kolom G (Remaining Contract Value)
-                let invoiceSub = getData(6, 6);        // Baris 7, Kolom G (Invoice Submission)
-                let wanIssued = getData(7, 6);         // Baris 8, Kolom G (WAN Issued)
-                let wanSub = getData(8, 6);            // Baris 9, Kolom G (WAN Submission)
-                let poIssued = getData(9, 6);          // Baris 10, Kolom G (PO Issued)
-                let poSub = getData(10, 6);            // Baris 11, Kolom G (PO Submission)
+        // Fungsi saat dropdown diganti
+        function changeContract() {
+            const selectedId = document.getElementById('contractSelect').value;
+            loadContractData(selectedId);
+        }
 
-                // Menampilkan ke Dashboard
-                document.getElementById('val-contract').innerText = "Rp " + contractVal;
-                document.getElementById('val-realization').innerText = "Rp " + contractReal;
-                document.getElementById('val-remaining').innerText = "Rp " + remainingVal;
-                document.getElementById('val-invoice').innerText = "Rp " + invoiceSub;
-                document.getElementById('val-wan-issued').innerText = "Rp " + wanIssued;
-                document.getElementById('val-wan-sub').innerText = "Rp " + wanSub;
-                document.getElementById('val-po-issued').innerText = "Rp " + poIssued;
-                document.getElementById('val-po-sub').innerText = "Rp " + poSub;
-            })
-            .catch(error => console.error('Gagal memuat data:', error));
+        // Jalankan saat halaman pertama kali dibuka (otomatis pilih kontrak pertama)
+        window.onload = function() {
+            changeContract();
+        };
     </script>
 </body>
 
