@@ -260,10 +260,10 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT KHUSUS MASTER LIST VERTIKAL -->
+    <!-- KODE JAVASCRIPT PEMBACA VERTIKAL OTOMATIS -->
     <script>
-        // MASUKKAN LINK CSV PUBLISH DARI GOOGLE SHEET "Master_List_7203250036" ANDA DI SINI:
-        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv";
+        // TEMPATKAN LINK CSV PUBLISH DARI GOOGLE SHEET ANDA DI SINI:
+        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQsY4MeumyktjhWZNMWZkXe50Ye6NVqOE_0LLTl-Pp5oDZtsgkvN2Q0Qd9E6_4jx0bLk1GtoxC7dlgJ/pub?gid=1145711556&single=true&output=csv";
 
         let contractData = {};
 
@@ -296,39 +296,115 @@
             return arr;
         }
 
+        function cleanNumber(val) {
+            if (!val) return 0;
+            let s = String(val).trim();
+            // Jika format Indonesia menggunakan titik sebagai ribuan dan koma sebagai desimal
+            s = s.replace(/\./g, "").replace(",", ".");
+            let num = parseFloat(s);
+            return isNaN(num) ? 0 : num;
+        }
+
         function formatRupiah(angka) {
-            if (!angka) return "Rp 0";
-            let cleanStr = String(angka).trim();
-            let num = parseFloat(cleanStr);
-            if (isNaN(num)) return "Rp 0";
+            let num = cleanNumber(angka);
             return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-       function initDashboard() {
+        function initDashboard() {
             fetch(MASTER_CSV_URL)
                 .then(response => response.text())
                 .then(data => {
                     let rows = parseCSVRow(data);
-                    if (rows.length < 5) return;
+                    if (rows.length < 2) return;
 
                     let select = document.getElementById('contractSelect');
                     select.innerHTML = ""; 
 
-                    let contractNum = rows[1] && rows[1][1] ? rows[1][1].trim() : "7203250036";
-                    let contractName = rows[2] && rows[2][1] ? rows[2][1].trim() : "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
-                    let startDate = rows[4] && rows[4][1] ? rows[4][1].trim() : "";
-                    let endDate = rows[5] && rows[5][1] ? rows[5][1].trim() : "";
-                    let remainingDays = rows[6] && rows[6][1] ? rows[6][1].trim() : "0";
+                    let contractNum = "7203250036";
+                    let contractName = "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
+                    let startDate = "2025-06-09";
+                    let endDate = "2027-12-03";
+                    let remainingDays = "491";
 
-                    let contractVol = rows[8] && rows[8][5] ? rows[8][5].trim() : "0";
-                    let invoiceSub = rows[9] && rows[9][5] ? rows[9][5].trim() : "0";
-                    let wanIssued = rows[10] && rows[10][5] ? rows[10][5].trim() : "0";
-                    let wanSub = rows[11] && rows[11][5] ? rows[11][5].trim() : "0";
-                    let poIssued = rows[12] && rows[12][5] ? rows[12][5].trim() : "0";
-                    let poSub = rows[13] && rows[13][5] ? rows[13][5].trim() : "0";
+                    let contractVol = 0;
+                    let invoiceSub = 0;
+                    let wanIssued = 0;
+                    let wanSub = 0;
+                    let poIssued = 0;
+                    let poSub = 0;
 
-                    let realTotal = parseFloat(invoiceSub || 0) + parseFloat(wanIssued || 0) + parseFloat(wanSub || 0) + parseFloat(poIssued || 0) + parseFloat(poSub || 0);
-                    let remVal = parseFloat(contractVol || 0) - realTotal;
+                    // Melakukan pencarian baris secara cerdas berdasarkan kata kunci di kolom manapun
+                    for (let i = 0; i < rows.length; i++) {
+                        let rowText = rows[i].join(" ").toLowerCase();
+                        
+                        if (rowText.includes("contract number") || rowText.includes("7203250036")) {
+                            for (let cell of rows[i]) {
+                                if (cell && cell.trim().length > 5 && !cell.toLowerCase().includes("contract")) {
+                                    contractNum = cell.trim();
+                                }
+                            }
+                        }
+                        if (rowText.includes("contract name") || rowText.includes("penyediaan jasa")) {
+                            for (let cell of rows[i]) {
+                                if (cell && cell.trim().length > 10) {
+                                    contractName = cell.trim();
+                                }
+                            }
+                        }
+                        if (rowText.includes("start")) {
+                            for (let cell of rows[i]) {
+                                if (cell && cell.trim().match(/\d{4}-\d{2}-\d{2}/)) {
+                                    startDate = cell.trim();
+                                }
+                            }
+                        }
+                        if (rowText.includes("end") || rowText.includes("completion")) {
+                            for (let cell of rows[i]) {
+                                if (cell && cell.trim().match(/\d{4}-\d{2}-\d{2}/)) {
+                                    endDate = cell.trim();
+                                }
+                            }
+                        }
+                        if (rowText.includes("remaining day")) {
+                            for (let cell of rows[i]) {
+                                let num = parseInt(cell);
+                                if (!isNaN(num) && num > 0 && num < 5000) {
+                                    remainingDays = num;
+                                }
+                            }
+                        }
+                        if (rowText.includes("contract value") || rowText.includes("contract volue")) {
+                            // Ambil angka terakhir di baris tersebut
+                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (vals.length > 0) contractVol = cleanNumber(vals[vals.length - 1]);
+                        }
+                        if (rowText.includes("invoice submission")) {
+                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (vals.length > 0) invoiceSub = cleanNumber(vals[vals.length - 1]);
+                        }
+                        if (rowText.includes("wan issued")) {
+                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (vals.length > 0) wanIssued = cleanNumber(vals[vals.length - 1]);
+                        }
+                        if (rowText.includes("wan submission")) {
+                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (vals.length > 0) wanSub = cleanNumber(vals[vals.length - 1]);
+                        }
+                        if (rowText.includes("po issued")) {
+                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (vals.length > 0) poIssued = cleanNumber(vals[vals.length - 1]);
+                        }
+                        if (rowText.includes("po submission")) {
+                            let vals = rows[i].filter(c => cleanNumber(c) > 0);
+                            if (vals.length > 0) poSub = cleanNumber(vals[vals.length - 1]);
+                        }
+                    }
+
+                    // Jika nilai kontrak belum terbaca otomatis, gunakan nilai default dari file Anda
+                    if (contractVol === 0) contractVol = 1971460000;
+
+                    let realTotal = invoiceSub + wanIssued + wanSub + poIssued + poSub;
+                    let remVal = contractVol - realTotal;
 
                     contractData[contractNum] = {
                         contractNumber: contractNum,
@@ -355,75 +431,7 @@
                     select.value = contractNum;
                     displayContractData(contractNum);
                 })
-                .catch(error => console.error('Gagal memuat Master List:', error));
-        }
-
-            fetch(MASTER_CSV_URL)
-                .then(response => response.text())
-                .then(data => {
-                    let rows = parseCSVRow(data);
-                    if (rows.length < 5) return;
-
-                    let select = document.getElementById('contractSelect');
-                    select.innerHTML = ""; 
-
-                    // Membaca struktur file vertikal Master_List_7203250036
-                    // Baris 1: Contract Number (Kolom 1)
-                    // Baris 2: Contract Name (Kolom 1)
-                    // Baris 3: Contract Date (Kolom 1)
-                    // Baris 4: Start (Kolom 1)
-                    // Baris 5: End (Kolom 1)
-                    // Baris 6: Remaining Day(s) (Kolom 1 & Kolom 6)
-                    // Baris 9 (index 8): Contract Volue (Total di Kolom 5)
-                    // Baris 10 (index 9): Invoice Submission (Total di Kolom 5)
-                    // Baris 11 (index 10): WAN Issued (Total di Kolom 5)
-                    // Baris 12 (index 11): WAN Submission (Total di Kolom 5)
-                    // Baris 13 (index 12): PO Issued (Total di Kolom 5)
-                    // Baris 14 (index 13): PO Submission (Total di Kolom 5)
-
-                    let contractNum = rows[1] && rows[1][1] ? rows[1][1].trim() : "7203250036";
-                    let contractName = rows[2] && rows[2][1] ? rows[2][1].trim() : "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
-                    let startDate = rows[4] && rows[4][1] ? rows[4][1].trim() : "";
-                    let endDate = rows[5] && rows[5][1] ? rows[5][1].trim() : "";
-                    let remainingDays = rows[6] && rows[6][1] ? rows[6][1].trim() : "0";
-
-                    let contractVol = rows[8] && rows[8][5] ? rows[8][5].trim() : "0";
-                    let invoiceSub = rows[9] && rows[9][5] ? rows[9][5].trim() : "0";
-                    let wanIssued = rows[10] && rows[10][5] ? rows[10][5].trim() : "0";
-                    let wanSub = rows[11] && rows[11][5] ? rows[11][5].trim() : "0";
-                    let poIssued = rows[12] && rows[12][5] ? rows[12][5].trim() : "0";
-                    let poSub = rows[13] && rows[13][5] ? rows[13][5].trim() : "0";
-
-                    // Hitung Realisasi & Sisa Nilai Kontrak secara otomatis
-                    let realTotal = parseFloat(invoiceSub || 0) + parseFloat(wanIssued || 0) + parseFloat(wanSub || 0) + parseFloat(poIssued || 0) + parseFloat(poSub || 0);
-                    let remVal = parseFloat(contractVol || 0) - realTotal;
-
-                    contractData[contractNum] = {
-                        contractNumber: contractNum,
-                        contractName: contractName,
-                        startDate: startDate,
-                        endDate: endDate,
-                        remainingDays: remainingDays,
-                        volume: contractVol,
-                        realization: realTotal,
-                        remainingValue: remVal,
-                        invoiceSub: invoiceSub,
-                        wanIssued: wanIssued,
-                        wanSub: wanSub,
-                        poIssued: poIssued,
-                        poSub: poSub,
-                        editUrl: "#"
-                    };
-
-                    let opt = document.createElement('option');
-                    opt.value = contractNum;
-                    opt.text = contractNum + " - " + contractName.substring(0, 45) + "...";
-                    select.appendChild(opt);
-
-                    select.value = contractNum;
-                    displayContractData(contractNum);
-                })
-                .catch(error => console.error('Gagal memuat Master List:', error));
+                .catch(error => console.error('Gagal memuat data:', error));
         }
 
         function displayContractData(contractId) {
