@@ -71,7 +71,7 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    <!-- JUDUL PERUSAHAAN BARU -->
+                    <!-- JUDUL PERUSAHAAN -->
                     <div class="mb-3">
                         <h2 class="text-primary font-weight-bold mb-0" style="letter-spacing: 0.5px;">PT. BANGGAI SENTRAL SULAWESI</h2>
                         <p class="text-muted font-weight-bold mb-3" style="font-size: 1.05rem;">General Contractor and Suppliers</p>
@@ -110,7 +110,7 @@
                                                             <i class="fas fa-database fa-sm text-white-50"></i> Proses / Edit Google Sheet
                                                         </button>
                                                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownSheetButton" id="sheetDropdownList">
-                                                            <!-- Daftar link edit sheet masuk otomatis -->
+                                                            <!-- Link edit sheet masuk otomatis -->
                                                         </div>
                                                     </div>
                                                 </div>
@@ -171,7 +171,7 @@
                         </div>
                     </div>
 
-                    <!-- 6 KARTU RINCIAN PENYERAPAN (DISEMPITKAN MENJADI col-xl-2 agar pas di satu baris) -->
+                    <!-- 5 KARTU RINCIAN PENYERAPAN -->
                     <div class="row">
                         <!-- PO Submission -->
                         <div class="col-xl-2 col-md-4 mb-4">
@@ -272,9 +272,23 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT -->
+    <!-- KODE JAVASCRIPT MULTI-PROYEK DINAMIS -->
     <script>
-        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv";
+        // DAFTAR LINK CSV PUBLISH DARI KETIGA PROYEK ANDA:
+        const CONTRACT_CONFIGS = [
+            {
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv",
+                editUrl: "https://docs.google.com/spreadsheets/d/1IUGZSY-pipW2cfojM5x0Su-FJ2QNU5OLu7dLxVxd8t4/edit?gid=1613946226#gid=1613946226"
+            },
+            {
+                csvUrl: "https://docs.google.com/spreadsheets/d/13CZmXovEtwfXJAUmjOumv5Mr-beLP1kFOr8ywc3WgY0/edit?gid=670375575#gid=670375575", // Ganti dengan link CSV Publish Proyek 2 (7207250142)
+                editUrl: "https://docs.google.com/spreadsheets/d/13CZmXovEtwfXJAUmjOumv5Mr-beLP1kFOr8ywc3WgY0/edit?gid=670375575#gid=670375575"  // Ganti dengan link Edit Google Sheet Proyek 2
+            },
+            {
+                csvUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=1348549908#gid=1348549908", // Ganti dengan link CSV Publish Proyek 3 (7201250141)
+                editUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=1348549908#gid=1348549908"  // Ganti dengan link Edit Google Sheet Proyek 3
+            }
+        ];
 
         let contractData = {};
 
@@ -320,26 +334,28 @@
             return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        function initDashboard() {
-            fetch(MASTER_CSV_URL)
-                .then(response => response.text())
-                .then(data => {
+        async function initDashboard() {
+            let select = document.getElementById('contractSelect');
+            let sheetDropdown = document.getElementById('sheetDropdownList');
+            select.innerHTML = ""; 
+            sheetDropdown.innerHTML = "";
+
+            for (let config of CONTRACT_CONFIGS) {
+                if (config.csvUrl.includes("MASUKKAN_LINK")) continue;
+
+                try {
+                    let response = await fetch(config.csvUrl);
+                    let data = await response.text();
                     let rows = parseCSVRow(data);
-                    if (rows.length < 15) return;
+                    if (rows.length < 15) continue;
 
-                    let select = document.getElementById('contractSelect');
-                    select.innerHTML = ""; 
+                    let contractNum = rows[1] && rows[1][2] ? rows[1][2].trim() : "";
+                    let contractName = rows[2] && rows[2][2] ? rows[2][2].trim() : "";
+                    let startDate = rows[4] && rows[4][2] ? rows[4][2].trim() : "";
+                    let endDate = rows[5] && rows[5][2] ? rows[5][2].trim() : "";
+                    let remainingDays = rows[6] && rows[6][2] ? rows[6][2].trim() : "0";
 
-                    let sheetDropdown = document.getElementById('sheetDropdownList');
-                    sheetDropdown.innerHTML = "";
-
-                    let contractNum = rows[1] && rows[1][2] ? rows[1][2].trim() : "7203250036";
-                    let contractName = rows[2] && rows[2][2] ? rows[2][2].trim() : "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
-                    let startDate = rows[4] && rows[4][2] ? rows[4][2].trim() : "9 Jun 2025";
-                    let endDate = rows[5] && rows[5][2] ? rows[5][2].trim() : "3 Des 2027";
-                    let remainingDays = rows[6] && rows[6][2] ? rows[6][2].trim() : "491";
-
-                    let contractVol = rows[8] && rows[8][6] ? cleanNumber(rows[8][6]) : 1971459000;
+                    let contractVol = rows[8] && rows[8][6] ? cleanNumber(rows[8][6]) : 0;
                     let invoiceSub = rows[9] && rows[9][6] ? cleanNumber(rows[9][6]) : 0;
                     let wanIssued = rows[10] && rows[10][6] ? cleanNumber(rows[10][6]) : 0;
                     let wanSub = rows[11] && rows[11][6] ? cleanNumber(rows[11][6]) : 0;
@@ -347,8 +363,6 @@
                     let poSub = rows[13] && rows[13][6] ? cleanNumber(rows[13][6]) : 0;
                     let contractRealization = rows[14] && rows[14][6] ? cleanNumber(rows[14][6]) : (invoiceSub + wanIssued + wanSub + poIssued + poSub);
                     let remainingContractVal = rows[15] && rows[15][6] ? cleanNumber(rows[15][6]) : (contractVol - contractRealization);
-
-                    let editSheetUrl = "https://docs.google.com/spreadsheets/d/1IUGZSY-pipW2cfojM5x0Su-FJ2QNU5OLu7dLxVxd8t4/edit?gid=1613946226#gid=1613946226";
 
                     contractData[contractNum] = {
                         contractNumber: contractNum,
@@ -364,25 +378,34 @@
                         wanSub: wanSub,
                         poIssued: poIssued,
                         poSub: poSub,
-                        editUrl: editSheetUrl
+                        editUrl: config.editUrl
                     };
 
+                    // Tambahkan pilihan ke dropdown nomor kontrak
                     let opt = document.createElement('option');
                     opt.value = contractNum;
-                    opt.text = contractNum + " - " + contractName.substring(0, 45) + "...";
+                    opt.text = contractNum + " - " + contractName.substring(0, 40) + "...";
                     select.appendChild(opt);
 
+                    // Tambahkan tautan edit ke dropdown tombol Google Sheet
                     let sheetOpt = document.createElement('a');
                     sheetOpt.className = "dropdown-item small font-weight-bold text-success";
-                    sheetOpt.href = editSheetUrl;
+                    sheetOpt.href = config.editUrl;
                     sheetOpt.target = "_blank";
                     sheetOpt.innerHTML = `<i class="fas fa-file-excel fa-sm mr-2"></i> ${contractNum} (Buka Spreadsheet)`;
                     sheetDropdown.appendChild(sheetOpt);
 
-                    select.value = contractNum;
-                    displayContractData(contractNum);
-                })
-                .catch(error => console.error('Gagal memuat data:', error));
+                } catch (err) {
+                    console.error("Gagal memuat data dari URL:", config.csvUrl, err);
+                }
+            }
+
+            // Tampilkan kontrak pertama secara otomatis saat halaman dimuat
+            let firstKeys = Object.keys(contractData);
+            if (firstKeys.length > 0) {
+                select.value = firstKeys[0];
+                displayContractData(firstKeys[0]);
+            }
         }
 
         function displayContractData(contractId) {
