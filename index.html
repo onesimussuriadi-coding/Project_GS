@@ -260,12 +260,12 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT MASTER LIST HORIZONTAL DINAMIS -->
+    <!-- KODE JAVASCRIPT KHUSUS MASTER LIST VERTIKAL -->
     <script>
-        // TEMPATKAN LINK CSV PUBLISH DARI GOOGLE SHEET "MASTER LIST" ANDA DI SINI:
-        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQsY4MeumyktjhWZNMWZkXe50Ye6NVqOE_0LLTl-Pp5oDZtsgkvN2Q0Qd9E6_4jx0bLk1GtoxC7dlgJ/pub?gid=1145711556&single=true&output=csv";
+        // MASUKKAN LINK CSV PUBLISH DARI GOOGLE SHEET "Master_List_7203250036" ANDA DI SINI:
+        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv";
 
-        let masterContractData = {};
+        let contractData = {};
 
         function parseCSVRow(str) {
             let arr = [];
@@ -314,60 +314,72 @@
                 .then(response => response.text())
                 .then(data => {
                     let rows = parseCSVRow(data);
-                    if (rows.length < 1) return;
+                    if (rows.length < 5) return;
 
                     let select = document.getElementById('contractSelect');
                     select.innerHTML = ""; 
 
-                    masterContractData = {};
+                    // Membaca struktur file vertikal Master_List_7203250036
+                    // Baris 1: Contract Number (Kolom 1)
+                    // Baris 2: Contract Name (Kolom 1)
+                    // Baris 3: Contract Date (Kolom 1)
+                    // Baris 4: Start (Kolom 1)
+                    // Baris 5: End (Kolom 1)
+                    // Baris 6: Remaining Day(s) (Kolom 1 & Kolom 6)
+                    // Baris 9 (index 8): Contract Volue (Total di Kolom 5)
+                    // Baris 10 (index 9): Invoice Submission (Total di Kolom 5)
+                    // Baris 11 (index 10): WAN Issued (Total di Kolom 5)
+                    // Baris 12 (index 11): WAN Submission (Total di Kolom 5)
+                    // Baris 13 (index 12): PO Issued (Total di Kolom 5)
+                    // Baris 14 (index 13): PO Submission (Total di Kolom 5)
 
-                    // Loop otomatis membaca baris data kontrak yang valid berdasarkan angka nomor kontrak di kolom pertama
-                    for (let i = 0; i < rows.length; i++) {
-                        let r = rows[i];
-                        if (!r || r.length < 11) continue;
-                        
-                        let contractNum = r[0] ? r[0].trim() : "";
-                        
-                        // Pastikan kolom pertama adalah angka nomor kontrak
-                        if (!/^\d+$/.test(contractNum)) continue;
+                    let contractNum = rows[1] && rows[1][1] ? rows[1][1].trim() : "7203250036";
+                    let contractName = rows[2] && rows[2][1] ? rows[2][1].trim() : "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
+                    let startDate = rows[4] && rows[4][1] ? rows[4][1].trim() : "";
+                    let endDate = rows[5] && rows[5][1] ? rows[5][1].trim() : "";
+                    let remainingDays = rows[6] && rows[6][1] ? rows[6][1].trim() : "0";
 
-                        let contractObj = {
-                            contractNumber: contractNum,
-                            contractName: r[1] ? r[1].trim() : "",
-                            startDate: r[3] ? r[3].trim() : "",
-                            endDate: r[4] ? r[4].trim() : "",
-                            remainingDays: r[6] ? r[6].trim() : "0",
-                            status: r[7] ? r[7].trim() : "",
-                            remainingValue: r[8] ? r[8].trim() : "0",
-                            realization: r[9] ? r[9].trim() : "0",
-                            volume: r[10] ? r[10].trim() : "0",
-                            invoiceSub: r[11] ? r[11].trim() : "0",
-                            wanIssued: r[12] ? r[12].trim() : "0",
-                            wanSub: r[13] ? r[13].trim() : "0",
-                            poIssued: r[14] ? r[14].trim() : "0",
-                            poSub: r[15] ? r[15].trim() : "0",
-                            editUrl: r[16] && r[16].trim() !== "" ? r[16].trim() : "#"
-                        };
+                    let contractVol = rows[8] && rows[8][5] ? rows[8][5].trim() : "0";
+                    let invoiceSub = rows[9] && rows[9][5] ? rows[9][5].trim() : "0";
+                    let wanIssued = rows[10] && rows[10][5] ? rows[10][5].trim() : "0";
+                    let wanSub = rows[11] && rows[11][5] ? rows[11][5].trim() : "0";
+                    let poIssued = rows[12] && rows[12][5] ? rows[12][5].trim() : "0";
+                    let poSub = rows[13] && rows[13][5] ? rows[13][5].trim() : "0";
 
-                        masterContractData[contractNum] = contractObj;
+                    // Hitung Realisasi & Sisa Nilai Kontrak secara otomatis
+                    let realTotal = parseFloat(invoiceSub || 0) + parseFloat(wanIssued || 0) + parseFloat(wanSub || 0) + parseFloat(poIssued || 0) + parseFloat(poSub || 0);
+                    let remVal = parseFloat(contractVol || 0) - realTotal;
 
-                        let opt = document.createElement('option');
-                        opt.value = contractNum;
-                        opt.text = contractNum + " - " + contractObj.contractName.substring(0, 45) + "...";
-                        select.appendChild(opt);
-                    }
+                    contractData[contractNum] = {
+                        contractNumber: contractNum,
+                        contractName: contractName,
+                        startDate: startDate,
+                        endDate: endDate,
+                        remainingDays: remainingDays,
+                        volume: contractVol,
+                        realization: realTotal,
+                        remainingValue: remVal,
+                        invoiceSub: invoiceSub,
+                        wanIssued: wanIssued,
+                        wanSub: wanSub,
+                        poIssued: poIssued,
+                        poSub: poSub,
+                        editUrl: "#"
+                    };
 
-                    let firstKeys = Object.keys(masterContractData);
-                    if (firstKeys.length > 0) {
-                        select.value = firstKeys[0];
-                        displayContractData(firstKeys[0]);
-                    }
+                    let opt = document.createElement('option');
+                    opt.value = contractNum;
+                    opt.text = contractNum + " - " + contractName.substring(0, 45) + "...";
+                    select.appendChild(opt);
+
+                    select.value = contractNum;
+                    displayContractData(contractNum);
                 })
                 .catch(error => console.error('Gagal memuat Master List:', error));
         }
 
         function displayContractData(contractId) {
-            let data = masterContractData[contractId];
+            let data = contractData[contractId];
             if (!data) return;
 
             document.getElementById('info-contract-name').innerText = data.contractName;
