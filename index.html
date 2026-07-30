@@ -312,6 +312,59 @@
                 .then(response => response.text())
                 .then(data => {
                     let rows = parseCSVRow(data);
+                    if (rows.length < 1) return;
+
+                    let select = document.getElementById('contractSelect');
+                    select.innerHTML = ""; 
+
+                    masterContractData = {};
+
+                    for (let i = 0; i < rows.length; i++) {
+                        let r = rows[i];
+                        if (!r || r.length < 11) continue;
+                        let contractNum = r[0] ? r[0].trim() : "";
+                        
+                        if (!/^\d+$/.test(contractNum)) continue;
+
+                        let contractObj = {
+                            contractNumber: contractNum,
+                            contractName: r[1] ? r[1].trim() : "",
+                            startDate: r[3] ? r[3].trim() : "",
+                            endDate: r[4] ? r[4].trim() : "",
+                            remainingDays: r[6] ? r[6].trim() : "0",
+                            status: r[7] ? r[7].trim() : "",
+                            remainingValue: r[8] ? r[8].trim().replace(",", ".") : "0",
+                            realization: r[9] ? r[9].trim().replace(",", ".") : "0",
+                            volume: r[10] ? r[10].trim().replace(",", ".") : "0",
+                            invoiceSub: r[11] ? r[11].trim().replace(",", ".") : "0",
+                            wanIssued: r[12] ? r[12].trim().replace(",", ".") : "0",
+                            wanSub: r[13] ? r[13].trim().replace(",", ".") : "0",
+                            poIssued: r[14] ? r[14].trim().replace(",", ".") : "0",
+                            poSub: r[15] ? r[15].trim().replace(",", ".") : "0",
+                            editUrl: r[16] && r[16].trim() !== "" ? r[16].trim() : "#"
+                        };
+
+                        masterContractData[contractNum] = contractObj;
+
+                        let opt = document.createElement('option');
+                        opt.value = contractNum;
+                        opt.text = contractNum + " - " + contractObj.contractName.substring(0, 45) + "...";
+                        select.appendChild(opt);
+                    }
+
+                    let firstKeys = Object.keys(masterContractData);
+                    if (firstKeys.length > 0) {
+                        select.value = firstKeys[0];
+                        displayContractData(firstKeys[0]);
+                    }
+                })
+                .catch(error => console.error('Gagal memuat Master List:', error));
+        }
+
+            fetch(MASTER_CSV_URL)
+                .then(response => response.text())
+                .then(data => {
+                    let rows = parseCSVRow(data);
                     if (rows.length < 2) return;
 
                     let select = document.getElementById('contractSelect');
