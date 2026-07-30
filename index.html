@@ -93,14 +93,22 @@
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Informasi Kontrak Aktif</div>
                                             <div id="info-contract-name" class="h6 mb-2 font-weight-bold text-gray-800">-</div>
-                                            <div class="row text-muted small">
+                                            <div class="row text-muted small align-items-center">
                                                 <div class="col-md-4">📅 Periode: <span id="info-contract-date" class="font-weight-bold text-dark">-</span></div>
                                                 <div class="col-md-4">⏳ Sisa Waktu: <span id="info-contract-remaining" class="font-weight-bold text-danger">-</span> Hari</div>
+                                                
+                                                <!-- TOMBOL DROPDOWN GOOGLE SHEET DINAMIS -->
                                                 <div class="col-md-4 text-right">
-                                                    <a id="btn-edit-sheet" href="#" target="_blank" class="btn btn-sm btn-success shadow-sm">
-                                                        <i class="fas fa-database fa-sm text-white-50"></i> Proses / Edit Google Sheet
-                                                    </a>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-success dropdown-toggle shadow-sm font-weight-bold" type="button" id="dropdownSheetButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-database fa-sm text-white-50"></i> Proses / Edit Google Sheet
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownSheetButton" id="sheetDropdownList">
+                                                            <!-- Daftar link edit sheet akan masuk secara otomatis di sini -->
+                                                        </div>
+                                                    </div>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -260,7 +268,7 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT PEMBACAAN KOORDINAT SEL PRESISI -->
+    <!-- KODE JAVASCRIPT TOMBOL EDIT GOOGLE SHEET DINAMIS -->
     <script>
         const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv";
 
@@ -318,21 +326,8 @@
                     let select = document.getElementById('contractSelect');
                     select.innerHTML = ""; 
 
-                    // PEMETAAN KOORDINAT SEL EXCEL YANG DIKOREKSI:
-                    // Row 1 (Index 1): Contract Number -> Kolom C (Index 2)
-                    // Row 2 (Index 2): Contract Name -> Kolom C (Index 2)
-                    // Row 3 (Index 3): Contract Date -> Kolom C (Index 2)
-                    // Row 4 (Index 4): Start (C5) -> Kolom C (Index 2)
-                    // Row 5 (Index 5): End (C6) -> Kolom C (Index 2)
-                    // Row 6 (Index 6): Remaining Day(s) (C7) -> Kolom C (Index 2)
-                    // Row 8 (Index 8): Contract Value -> Kolom G (Index 6)
-                    // Row 9 (Index 9): Invoice Submission -> Kolom G (Index 6)
-                    // Row 10 (Index 10): WAN Issued -> Kolom G (Index 6)
-                    // Row 11 (Index 11): WAN Submission -> Kolom G (Index 6)
-                    // Row 12 (Index 12): PO Issued -> Kolom G (Index 6)
-                    // Row 13 (Index 13): PO Submission -> Kolom G (Index 6)
-                    // Row 14 (Index 14): Contract Realization -> Kolom G (Index 6)
-                    // Row 15 (Index 15): Remaining Contract Value -> Kolom G (Index 6)
+                    let sheetDropdown = document.getElementById('sheetDropdownList');
+                    sheetDropdown.innerHTML = "";
 
                     let contractNum = rows[1] && rows[1][2] ? rows[1][2].trim() : "7203250036";
                     let contractName = rows[2] && rows[2][2] ? rows[2][2].trim() : "Penyediaan Jasa Penyewaan Alat Berat Warehouse";
@@ -343,11 +338,14 @@
                     let contractVol = rows[8] && rows[8][6] ? cleanNumber(rows[8][6]) : 1971459000;
                     let invoiceSub = rows[9] && rows[9][6] ? cleanNumber(rows[9][6]) : 0;
                     let wanIssued = rows[10] && rows[10][6] ? cleanNumber(rows[10][6]) : 0;
-                    let wanSub = rows[11] && rows[11][6] ? cleanNumber(rows[11][6]) : 0;
+                    let sanitSub = rows[11] && rows[11][6] ? cleanNumber(rows[11][6]) : 0;
                     let poIssued = rows[12] && rows[12][6] ? cleanNumber(rows[12][6]) : 0;
                     let poSub = rows[13] && rows[13][6] ? cleanNumber(rows[13][6]) : 0;
-                    let contractRealization = rows[14] && rows[14][6] ? cleanNumber(rows[14][6]) : (invoiceSub + wanIssued + wanSub + poIssued + poSub);
+                    let contractRealization = rows[14] && rows[14][6] ? cleanNumber(rows[14][6]) : (invoiceSub + wanIssued + sanitSub + poIssued + poSub);
                     let remainingContractVal = rows[15] && rows[15][6] ? cleanNumber(rows[15][6]) : (contractVol - contractRealization);
+
+                    // Tautan Google Sheet aktif (bisa disesuaikan per kontrak nantinya)
+                    let editSheetUrl = MASTER_CSV_URL.replace("/pub?output=csv", "");
 
                     contractData[contractNum] = {
                         contractNumber: contractNum,
@@ -360,16 +358,25 @@
                         remainingValue: remainingContractVal,
                         invoiceSub: invoiceSub,
                         wanIssued: wanIssued,
-                        wanSub: wanSub,
+                        wanSub: sanitSub,
                         poIssued: poIssued,
                         poSub: poSub,
-                        editUrl: "#"
+                        editUrl: editSheetUrl
                     };
 
+                    // Tambahkan ke dropdown pilihan nomor kontrak
                     let opt = document.createElement('option');
                     opt.value = contractNum;
                     opt.text = contractNum + " - " + contractName.substring(0, 45) + "...";
                     select.appendChild(opt);
+
+                    // Tambahkan ke dropdown pilihan tombol edit Google Sheet
+                    let sheetOpt = document.createElement('a');
+                    sheetOpt.className = "dropdown-item small font-weight-bold text-success";
+                    sheetOpt.href = editSheetUrl;
+                    sheetOpt.target = "_blank";
+                    sheetOpt.innerHTML = `<i class="fas fa-file-excel fa-sm mr-2"></i> ${contractNum} (Buka Spreadsheet)`;
+                    sheetDropdown.appendChild(sheetOpt);
 
                     select.value = contractNum;
                     displayContractData(contractNum);
@@ -384,7 +391,6 @@
             document.getElementById('info-contract-name').innerText = data.contractName;
             document.getElementById('info-contract-date').innerText = data.startDate + " - " + data.endDate;
             document.getElementById('info-contract-remaining').innerText = data.remainingDays;
-            document.getElementById('btn-edit-sheet').href = data.editUrl;
 
             document.getElementById('val-contract').innerText = formatRupiah(data.volume);
             document.getElementById('val-realization').innerText = formatRupiah(data.realization);
