@@ -260,10 +260,10 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT MASTER LIST DINAMIS -->
+    <!-- KODE JAVASCRIPT MASTER LIST HORIZONTAL DINAMIS -->
     <script>
         // TEMPATKAN LINK CSV PUBLISH DARI GOOGLE SHEET "MASTER LIST" ANDA DI SINI:
-        const MASTER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQsY4MeumyktjhWZNMWZkXe50Ye6NVqOE_0LLTl-Pp5oDZtsgkvN2Q0Qd9E6_4jx0bLk1GtoxC7dlgJ/pub?gid=1145711556&single=true&output=csv";
+        const MASTER_CSV_URL = "MASUKKAN_LINK_CSV_MASTER_LIST_ANDA_DI_SINI";
 
         let masterContractData = {};
 
@@ -303,7 +303,6 @@
         }
 
         function initDashboard() {
-            // Batas awal: Cek apakah link masih menggunakan teks placeholder
             if (MASTER_CSV_URL.includes("https://docs.google.com/spreadsheets/d/e/2PACX-1vQsY4MeumyktjhWZNMWZkXe50Ye6NVqOE_0LLTl-Pp5oDZtsgkvN2Q0Qd9E6_4jx0bLk1GtoxC7dlgJ/pub?gid=1145711556&single=true&output=csv")) {
                 alert("Harap masukkan link CSV Master List Google Sheet Anda pada variabel MASTER_CSV_URL di kode HTML!");
                 return;
@@ -320,78 +319,43 @@
 
                     masterContractData = {};
 
+                    // Berdasarkan file Master List CSV horizontal Anda:
+                    // Col 0: Contract Number
+                    // Col 1: Contract Name
+                    // Col 3: Start Date
+                    // Col 4: End Date
+                    // Col 6: Remaining Days
+                    // Col 7: Status
+                    // Col 8: Remaining Contract Value
+                    // Col 9: Contract Realization
+                    // Col 10: Contract Volume (Contract Volue)
+                    // Col 11: Invoice Submission
+                    // Col 12: WAN Issued
+                    // Col 13: WAN Submission
+                    // Col 14: PO Issued
+                    // Col 15: PO Submission
+                    // Col 16: Link Editing-Updating
                     for (let i = 1; i < rows.length; i++) {
                         let r = rows[i];
-                        if (r.length < 8 || !r[0].trim()) continue;
+                        if (r.length < 11 || !r[0].trim()) continue;
 
                         let contractNum = r[0].trim();
                         let contractObj = {
                             contractNumber: contractNum,
-                            contractName: r[1].trim(),
-                            startDate: r[3].trim(),
-                            endDate: r[4].trim(),
-                            remainingDays: r[6].trim(),
-                            status: r[7].trim(),
-                            remainingValue: r[8].trim(),
-                            realization: r[9].trim(),
-                            volume: r[10].trim(),
-                            invoiceSub: r[11].trim(),
-                            wanIssued: r[12].trim(),
-                            wanSub: r[13].trim(),
-                            poIssued: r[14].trim(),
-                            poSub: r[15].trim(),
-                            editUrl: r[16] ? r[16].trim() : "#"
-                        };
-
-                        masterContractData[contractNum] = contractObj;
-
-                        let opt = document.createElement('option');
-                        opt.value = contractNum;
-                        opt.text = contractNum + " - " + contractObj.contractName.substring(0, 45) + "...";
-                        select.appendChild(opt);
-                    }
-
-                    let firstKeys = Object.keys(masterContractData);
-                    if (firstKeys.length > 0) {
-                        select.value = firstKeys[0];
-                        displayContractData(firstKeys[0]);
-                    }
-                })
-                .catch(error => console.error('Gagal memuat Master List:', error));
-        } // Batas akhir fungsi initDashboard
-
-            fetch(MASTER_CSV_URL)
-                .then(response => response.text())
-                .then(data => {
-                    let rows = parseCSVRow(data);
-                    if (rows.length < 2) return;
-
-                    let select = document.getElementById('contractSelect');
-                    select.innerHTML = ""; 
-
-                    masterContractData = {};
-
-                    for (let i = 1; i < rows.length; i++) {
-                        let r = rows[i];
-                        if (r.length < 8 || !r[0].trim()) continue;
-
-                        let contractNum = r[0].trim();
-                        let contractObj = {
-                            contractNumber: contractNum,
-                            contractName: r[1].trim(),
-                            startDate: r[3].trim(),
-                            endDate: r[4].trim(),
-                            remainingDays: r[6].trim(),
-                            status: r[7].trim(),
-                            remainingValue: r[8].trim(),
-                            realization: r[9].trim(),
-                            volume: r[10].trim(),
-                            invoiceSub: r[11].trim(),
-                            wanIssued: r[12].trim(),
-                            wanSub: r[13].trim(),
-                            poIssued: r[14].trim(),
-                            poSub: r[15].trim(),
-                            editUrl: r[16] ? r[16].trim() : "#"
+                            contractName: r[1] ? r[1].trim() : "",
+                            startDate: r[3] ? r[3].trim() : "",
+                            endDate: r[4] ? r[4].trim() : "",
+                            remainingDays: r[6] ? r[6].trim() : "0",
+                            status: r[7] ? r[7].trim() : "",
+                            remainingValue: r[8] ? r[8].trim() : "0",
+                            realization: r[9] ? r[9].trim() : "0",
+                            volume: r[10] ? r[10].trim() : "0",
+                            invoiceSub: r[11] ? r[11].trim() : "0",
+                            wanIssued: r[12] ? r[12].trim() : "0",
+                            wanSub: r[13] ? r[13].trim() : "0",
+                            poIssued: r[14] ? r[14].trim() : "0",
+                            poSub: r[15] ? r[15].trim() : "0",
+                            editUrl: r[16] && r[16].trim() !== "" ? r[16].trim() : "#"
                         };
 
                         masterContractData[contractNum] = contractObj;
