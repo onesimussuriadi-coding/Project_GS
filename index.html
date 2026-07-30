@@ -303,7 +303,7 @@
         }
 
         function initDashboard() {
-    if (MASTER_CSV_URL.includes("https://docs.google.com/spreadsheets/d/e/2PACX-1vQsY4MeumyktjhWZNMWZkXe50Ye6NVqOE_0LLTl-Pp5oDZtsgkvN2Q0Qd9E6_4jx0bLk1GtoxC7dlgJ/pub?output=csv")) {
+            if (MASTER_CSV_URL.includes("MASUKKAN_LINK")) {
                 alert("Harap masukkan link CSV Master List Google Sheet Anda pada variabel MASTER_CSV_URL di kode HTML!");
                 return;
             }
@@ -314,13 +314,11 @@
                     let rows = parseCSVRow(data);
                     if (rows.length < 2) return;
 
-                    let headers = rows[0];
                     let select = document.getElementById('contractSelect');
-                    select.innerHTML = ""; // Kosongkan pilihan awal
+                    select.innerHTML = ""; 
 
                     masterContractData = {};
 
-                    // Baca baris data dari master list (mulai baris index 1)
                     for (let i = 1; i < rows.length; i++) {
                         let r = rows[i];
                         if (r.length < 8 || !r[0].trim()) continue;
@@ -346,14 +344,12 @@
 
                         masterContractData[contractNum] = contractObj;
 
-                        // Tambahkan ke dropdown HTML secara otomatis
                         let opt = document.createElement('option');
                         opt.value = contractNum;
                         opt.text = contractNum + " - " + contractObj.contractName.substring(0, 45) + "...";
                         select.appendChild(opt);
                     }
 
-                    // Muat data untuk kontrak pertama secara default
                     let firstKeys = Object.keys(masterContractData);
                     if (firstKeys.length > 0) {
                         select.value = firstKeys[0];
@@ -367,13 +363,11 @@
             let data = masterContractData[contractId];
             if (!data) return;
 
-            // Isi informasi detail
             document.getElementById('info-contract-name').innerText = data.contractName;
             document.getElementById('info-contract-date').innerText = data.startDate + " - " + data.endDate;
             document.getElementById('info-contract-remaining').innerText = data.remainingDays;
             document.getElementById('btn-edit-sheet').href = data.editUrl;
 
-            // Isi nilai finansial pada kartu
             document.getElementById('val-contract').innerText = formatRupiah(data.volume);
             document.getElementById('val-realization').innerText = formatRupiah(data.realization);
             document.getElementById('val-remaining').innerText = formatRupiah(data.remainingValue);
