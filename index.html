@@ -272,7 +272,7 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT DENGAN PARSING ANGKA PRESISI DESIMAL -->
+    <!-- KODE JAVASCRIPT AMAN DENGAN PENANGANAN DESIMAL PRESISI -->
     <script>
         const CONTRACT_CONFIGS = [
             {
@@ -281,12 +281,12 @@
                 editUrl: "https://docs.google.com/spreadsheets/d/1IUGZSY-pipW2cfojM5x0Su-FJ2QNU5OLu7dLxVxd8t4/edit?gid=1613946226#gid=1613946226"
             },
             {
-                // Proyek 2 (7207250142) - Pastikan link berakhiran /pub?output=csv
-                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS2H4x60o-l_9k2I7bI-cCxY2R8Z0a3Y9w6Ra7y9Z0a3Y9w6Ra7y9Z0a3Y9w6Ra7y9/pub?output=csv", 
+                // Proyek 2 (7207250142) - Ganti dengan link Publish CSV asli Anda jika belum
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzJOIWZ-wG9RFjmwow4v-FAgq_w-p9zyk-qC8WWUFg6BgGvwCNyVjj19-slxYyhBSMGKjLsGMREMBv/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/13CZmXovEtwfXJAUmjOumv5Mr-beLP1kFOr8ywc3WgY0/edit?gid=670375575#gid=670375575"
             },
             {
-                // Proyek 3 (7201250141) - Pastikan link berakhiran /pub?output=csv
+                // Proyek 3 (7201250141) - Ganti dengan link Publish CSV asli Anda jika belum
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=1348549908#gid=1348549908"
             }
@@ -323,19 +323,16 @@
             return arr;
         }
 
-        // FUNGSI PEMBERSIH ANGKA PRESISI UNTUK FORMAT INDONESIA
+        // FUNGSI PENGURAI ANGKA PRESISI (MENGATASI DESIMAL INDONESIA DENGAN AMAN)
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
-            // Jika ada koma, asumsikan itu pemisah desimal gaya Indonesia
+            // Jika ada koma, perlakukan sebagai pemisah desimal
             if (s.includes(",")) {
-                // Hapus semua titik ribuan
-                s = s.replace(/\./g, "");
-                // Ubah koma menjadi titik desimal standar
-                s = s.replace(",", ".");
+                s = s.replace(/\./g, ""); // Hapus titik ribuan
+                s = s.replace(",", ".");  // Ubah koma jadi titik standar
             } else {
-                // Jika murni angka dengan titik ribuan tanpa koma
-                s = s.replace(/\./g, "");
+                s = s.replace(/\./g, ""); // Hapus titik ribuan murni
             }
             let num = parseFloat(s);
             return isNaN(num) ? 0 : num;
@@ -353,11 +350,12 @@
             sheetDropdown.innerHTML = "";
 
             for (let config of CONTRACT_CONFIGS) {
-                // Lewati placeholder jika belum diisi link asli yang benar
+                // Lewati jika link masih berupa placeholder teks petunjuk
                 if (config.csvUrl.includes("MASUKKAN_LINK")) continue;
 
                 try {
                     let response = await fetch(config.csvUrl);
+                    if (!response.ok) continue;
                     let data = await response.text();
                     let rows = parseCSVRow(data);
                     if (rows.length < 15) continue;
@@ -411,3 +409,36 @@
                 }
             }
 
+            let firstKeys = Object.keys(contractData);
+            if (firstKeys.length > 0) {
+                select.value = firstKeys[0];
+                displayContractData(firstKeys[0]);
+            }
+        }
+
+        function displayContractData(contractId) {
+            let data = contractData[contractId];
+            if (!data) return;
+
+            document.getElementById('info-contract-name').innerText = data.contractName;
+            document.getElementById('info-contract-date').innerText = data.startDate + " - " + data.endDate;
+            document.getElementById('info-contract-remaining').innerText = data.remainingDays;
+
+            document.getElementById('val-contract').innerText = formatRupiah(data.volume);
+            document.getElementById('val-realization').innerText = formatRupiah(data.realization);
+            document.getElementById('val-remaining').innerText = formatRupiah(data.remainingValue);
+            document.getElementById('val-po-sub').innerText = formatRupiah(data.poSub);
+            document.getElementById('val-po-issued').innerText = formatRupiah(data.poIssued);
+            document.getElementById('val-wan-sub').innerText = formatRupiah(data.wanSub);
+            document.getElementById('val-wan-issued').innerText = formatRupiah(data.wanIssued);
+            document.getElementById('val-invoice').innerText = formatRupiah(data.invoiceSub);
+        }
+
+        function onContractChange() {
+            let selectedId = document.getElementById('contractSelect').value;
+            displayContractData(selectedId);
+        }
+    </script>
+</body>
+
+</html>
