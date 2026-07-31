@@ -272,7 +272,7 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT AMAN DENGAN PENANGANAN DESIMAL PRESISI -->
+    <!-- KODE JAVASCRIPT DENGAN PARSER CSV YANG AMAN TERHADAP KOMA DESIMAL -->
     <script>
         const CONTRACT_CONFIGS = [
             {
@@ -281,12 +281,12 @@
                 editUrl: "https://docs.google.com/spreadsheets/d/1IUGZSY-pipW2cfojM5x0Su-FJ2QNU5OLu7dLxVxd8t4/edit?gid=1613946226#gid=1613946226"
             },
             {
-                // Proyek 2 (7207250142) - Ganti dengan link Publish CSV asli Anda jika belum
+                // Proyek 2 (7207250142)
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzJOIWZ-wG9RFjmwow4v-FAgq_w-p9zyk-qC8WWUFg6BgGvwCNyVjj19-slxYyhBSMGKjLsGMREMBv/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/13CZmXovEtwfXJAUmjOumv5Mr-beLP1kFOr8ywc3WgY0/edit?gid=670375575#gid=670375575"
             },
             {
-                // Proyek 3 (7201250141) - Ganti dengan link Publish CSV asli Anda jika belum
+                // Proyek 3 (7201250141)
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=1348549908#gid=1348549908"
             }
@@ -294,49 +294,53 @@
 
         let contractData = {};
 
+        // PARSER CSV CERDAS (MENGGABUNGKAN KEMBALI PECAHAN ANGKA YANG TERPISAH KOMA)
         function parseCSVRow(str) {
-            let arr = [];
-            let row = [];
-            let inQuote = false;
-            let entry = '';
-            for (let i = 0; i < str.length; i++) {
-                let c = str[i];
-                if (c === '"') {
-                    inQuote = !inQuote;
-                } else if (c === ',' && !inQuote) {
-                    row.push(entry);
-                    entry = '';
-                } else if (c === '\n' || c === '\r') {
-                    row.push(entry);
-                    arr.push(row);
-                    row = [];
-                    entry = '';
-                    if (c === '\r' && str[i + 1] === '\n') { i++; }
-                } else {
-                    entry += c;
+            let lines = str.split(/\r\n|\n/);
+            let result = [];
+            
+            for (let line of lines) {
+                if (!line.trim()) continue;
+                let row = [];
+                let inQuote = false;
+                let entry = '';
+                
+                for (let i = 0; i < line.length; i++) {
+                    let c = line[i];
+                    if (c === '"') {
+                        inQuote = !inQuote;
+                    } else if (c === ',' && !inQuote) {
+                        row.push(entry.trim());
+                        entry = '';
+                    } else {
+                        entry += c;
+                    }
                 }
+                row.push(entry.trim());
+
+                // Koreksi khusus untuk baris angka total (kolom indeks 6 terpecah koma desimal)
+                // Jika kolom ke-6 berupa digit angka tanpa huruf, dan kolom ke-7 ada (pecahan desimalnya)
+                if (row.length > 7 && /^\d+$/.test(row[6]) && /^\d+$/.test(row[7])) {
+                    row[6] = row[6] + "," + row[7];
+                    row.splice(7, 1); // Hapus elemen pecahan yang terpisah
+                }
+
+                result.push(row);
             }
-            if (entry !== '' || row.length > 0) {
-                row.push(entry);
-                arr.push(row);
-            }
-            return arr;
+            return result;
         }
 
-       // FUNGSI PEMBERSIH ANGKA PRESISI UNTUK DESIMAL INDONESIA (KOMA SEBAGAI DESIMAL)
+        // FUNGSI PEMBERSIH ANGKA PRESISI
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
             
-            // Jika ada tanda koma (format desimal Indonesia, misal: 42.997.428,98)
             if (s.includes(",")) {
-                // Pisahkan bagian angka bulat dan bagian desimalnya
                 let parts = s.split(",");
-                let integerPart = parts[0].replace(/\./g, ""); // Hapus titik ribuan di bagian bulat
-                let decimalPart = parts[1] || "00";           // Ambil angka di belakang koma
-                s = integerPart + "." + decimalPart;          // Gabungkan dengan titik standar desimal JS
+                let integerPart = parts[0].replace(/\./g, ""); 
+                let decimalPart = parts[1] || "00";           
+                s = integerPart + "." + decimalPart;          
             } else {
-                // Jika tidak ada koma, cukup bersihkan titik ribuan
                 s = s.replace(/\./g, "");
             }
 
@@ -347,8 +351,8 @@
         function formatRupiah(angka) {
             let num = cleanNumber(angka);
             return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }    
-        
+        }
+
         async function initDashboard() {
             let select = document.getElementById('contractSelect');
             let sheetDropdown = document.getElementById('sheetDropdownList');
@@ -356,7 +360,6 @@
             sheetDropdown.innerHTML = "";
 
             for (let config of CONTRACT_CONFIGS) {
-                // Lewati jika link masih berupa placeholder teks petunjuk
                 if (config.csvUrl.includes("MASUKKAN_LINK")) continue;
 
                 try {
