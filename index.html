@@ -323,17 +323,23 @@
             return arr;
         }
 
-        // FUNGSI PENGURAI ANGKA PRESISI (MENGATASI DESIMAL INDONESIA DENGAN AMAN)
+       // FUNGSI PEMBERSIH ANGKA PRESISI UNTUK DESIMAL INDONESIA (KOMA SEBAGAI DESIMAL)
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
-            // Jika ada koma, perlakukan sebagai pemisah desimal
+            
+            // Jika ada tanda koma (format desimal Indonesia, misal: 42.997.428,98)
             if (s.includes(",")) {
-                s = s.replace(/\./g, ""); // Hapus titik ribuan
-                s = s.replace(",", ".");  // Ubah koma jadi titik standar
+                // Pisahkan bagian angka bulat dan bagian desimalnya
+                let parts = s.split(",");
+                let integerPart = parts[0].replace(/\./g, ""); // Hapus titik ribuan di bagian bulat
+                let decimalPart = parts[1] || "00";           // Ambil angka di belakang koma
+                s = integerPart + "." + decimalPart;          // Gabungkan dengan titik standar desimal JS
             } else {
-                s = s.replace(/\./g, ""); // Hapus titik ribuan murni
+                // Jika tidak ada koma, cukup bersihkan titik ribuan
+                s = s.replace(/\./g, "");
             }
+
             let num = parseFloat(s);
             return isNaN(num) ? 0 : num;
         }
@@ -341,8 +347,8 @@
         function formatRupiah(angka) {
             let num = cleanNumber(angka);
             return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
+        }    
+        
         async function initDashboard() {
             let select = document.getElementById('contractSelect');
             let sheetDropdown = document.getElementById('sheetDropdownList');
