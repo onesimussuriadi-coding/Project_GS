@@ -401,14 +401,27 @@
         }
 
         function setupUserSession(username) {
-            document.getElementById('activeUsernameDisplay').innerText = username;
-            document.getElementById('topbarUserRole').innerText = username === 'admin' ? 'Administrator' : 'Rekan Kerja (User)';
-            if (username === 'admin') {
-                document.getElementById('adminMenuSection').style.display = 'block';
-            } else {
-                document.getElementById('adminMenuSection').style.display = 'none';
-            }
-        }
+    document.getElementById('activeUsernameDisplay').innerText = username;
+    document.getElementById('topbarUserRole').innerText = username === 'admin' ? 'Administrator' : 'Rekan Kerja (User)';
+
+    // PENGATURAN FOTO PROFIL BERDASARKAN USERNAME
+    let profileImg = document.querySelector('.img-profile');
+    if (username === 'admin') {
+        profileImg.src = "img/admin.jpg"; // Sesuaikan dengan nama file foto admin Anda
+    } else if (username === 'Itha') {
+        profileImg.src = "img/itha.jpg";  // Sesuaikan dengan nama file foto Itha
+    } else if (username === 'Yanuar') {
+        profileImg.src = "img/yanuar.jpg";// Sesuaikan dengan nama file foto Yanuar
+    } else {
+        profileImg.src = "img/undraw_profile.svg"; // Foto default
+    }
+
+    if (username === 'admin') {
+        document.getElementById('adminMenuSection').style.display = 'block';
+    } else {
+        document.getElementById('adminMenuSection').style.display = 'none';
+    }
+}
 
         function showDashboardView() {
             document.getElementById('viewDashboard').style.display = 'block';
