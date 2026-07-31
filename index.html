@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Dashboard General Services - Multi Kontrak Dinamis</title>
+    <title>Dashboard General Services - PT. Banggai Sentral Sulawesi</title>
 
     <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -13,12 +13,48 @@
 
     <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
+        }
+        .login-card { max-width: 450px; width: 100%; border-radius: 1rem; }
+    </style>
 </head>
 
-<body id="page-top" onload="initDashboard()">
+<body id="page-top" onload="checkAuth()">
 
-    <!-- Page Wrapper -->
-    <div id="wrapper">
+    <!-- HALAMAN LOGIN (MUNCUL JIKA BELUM MASUK) -->
+    <div id="login-overlay">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-xl-5 col-lg-6 col-md-8">
+                    <div class="card shadow-lg border-0 login-card my-5">
+                        <div class="card-body p-4 p-sm-5">
+                            <div class="text-center mb-4">
+                                <h1 class="h4 text-gray-900 font-weight-bold">GENERAL SERVICES</h1>
+                                <span class="text-xs text-muted font-weight-bold">PT. BANGGAI SENTRAL SULAWESI</span>
+                            </div>
+                            <form id="loginForm" onsubmit="handleLogin(event)">
+                                <div class="form-group">
+                                    <input type="text" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Username..." required autocomplete="username">
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required autocomplete="current-password">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-user btn-block font-weight-bold">Login ke Dashboard</button>
+                            </form>
+                            <div id="loginError" class="text-danger text-center small mt-3 font-weight-bold" style="display:none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Wrapper (DASHBOARD UTAMA) -->
+    <div id="wrapper" style="display:none;">
 
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -32,15 +68,31 @@
             <hr class="sidebar-divider my-0">
 
             <li class="nav-item active">
-                <a class="nav-link" href="index.html">
+                <a class="nav-link" href="#" onclick="showDashboardView()">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
-            <hr class="sidebar-divider">
-            <div class="sidebar-heading">Menu</div>
+            <!-- MENU KHUSUS ADMIN (HANYA MUNCUL JIKA USERNAME = admin) -->
+            <div id="adminMenuSection" style="display:none;">
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Admin Panel</div>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showAdminView()">
+                        <i class="fas fa-fw fa-users-cog"></i>
+                        <span>Kelola Akun Rekan Kerja</span></a>
+                </li>
+            </div>
 
-            <div class="text-center d-none d-md-inline">
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading">Sistem</div>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="handleLogout()">
+                    <i class="fas fa-fw fa-sign-out-alt"></i>
+                    <span>Logout (<span id="activeUsernameDisplay"></span>)</span></a>
+            </li>
+
+            <div class="text-center d-none d-md-inline mt-3">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
@@ -59,17 +111,15 @@
                     </button>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
-                                <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
-                            </a>
+                            <span class="mr-3 d-none d-lg-inline text-gray-600 font-weight-bold small" id="topbarUserRole">User</span>
+                            <img class="img-profile rounded-circle" src="img/undraw_profile.svg">
                         </li>
                     </ul>
                 </nav>
                 <!-- End of Topbar -->
 
-                <!-- Begin Page Content -->
-                <div class="container-fluid">
+                <!-- BEGIN PAGE CONTENT: TAMPILAN DASHBOARD -->
+                <div class="container-fluid" id="viewDashboard">
 
                     <!-- JUDUL PERUSAHAAN -->
                     <div class="mb-3">
@@ -250,7 +300,64 @@
                     </div>
 
                 </div>
-                <!-- /.container-fluid -->
+                <!-- END PAGE CONTENT: DASHBOARD -->
+
+                <!-- BEGIN PAGE CONTENT: ADMIN PANEL (KELOLA AKUN REKAN KERJA) -->
+                <div class="container-fluid" id="viewAdmin" style="display:none;">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Kelola Akun Rekan Kerja</h1>
+                    </div>
+
+                    <div class="row">
+                        <!-- Form Tambah/Ubah Akun -->
+                        <div class="col-xl-5 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 bg-primary text-white font-weight-bold">
+                                    <i class="fas fa-user-plus fa-sm mr-2"></i> Tambah / Perbarui Password Akun
+                                </div>
+                                <div class="card-body">
+                                    <form onsubmit="handleSaveUser(event)">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small">Username Rekan Kerja:</label>
+                                            <input type="text" class="form-control" id="adminInputUser" placeholder="contoh: rekan1" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small">Password Baru:</label>
+                                            <input type="text" class="form-control" id="adminInputPass" placeholder="Masukkan password..." required>
+                                        </div>
+                                        <button type="submit" class="btn btn-success btn-block font-weight-bold">Simpan / Perbarui Akun</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Daftar Akun Terdaftar -->
+                        <div class="col-xl-7 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 bg-info text-white font-weight-bold">
+                                    <i class="fas fa-list fa-sm mr-2"></i> Daftar Akun yang Memiliki Akses
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Username</th>
+                                                    <th>Password</th>
+                                                    <th class="text-center">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="userTableBody">
+                                                <!-- Terisi otomatis -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END PAGE CONTENT: ADMIN PANEL -->
 
             </div>
             <!-- End of Main Content -->
@@ -272,21 +379,134 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT DENGAN KOREKSI PEMBACAAN ANGKA DESIMAL GOOGLE SHEETS -->
+    <!-- KODE SISTEM LOGIN & MULTI PROYEK -->
     <script>
+        // DAFTAR AKUN DEFAULT (ADMIN UTAMA ANDA + REKAN KERJA)
+        // Anda bisa ubah password admin di sini, atau tambah akun rekan kerja baru
+        const DEFAULT_USERS = {
+            "admin": "bss2026",      // Akun Anda (Admin Utama, bisa kelola akun lain)
+            "rekan": "bssrekan123"   // Akun contoh untuk rekan kerja
+        };
+
+        // Simpan ke localStorage agar manajemen password permanen di browser
+        function initUsersStorage() {
+            if (!localStorage.getItem("bss_users")) {
+                localStorage.setItem("bss_users", JSON.stringify(DEFAULT_USERS));
+            }
+        }
+
+        function checkAuth() {
+            initUsersStorage();
+            let currentUser = sessionStorage.getItem("bss_logged_in_user");
+            if (currentUser) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('wrapper').style.display = 'flex';
+                setupUserSession(currentUser);
+                initDashboard();
+            } else {
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('wrapper').style.display = 'none';
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            let u = document.getElementById('loginUser').value.trim();
+            let p = document.getElementById('loginPass').value.trim();
+            let users = JSON.parse(localStorage.getItem("bss_users"));
+
+            if (users[u] && users[u] === p) {
+                sessionStorage.setItem("bss_logged_in_user", u);
+                checkAuth();
+            } else {
+                let err = document.getElementById('loginError');
+                err.innerText = "Username atau Password salah!";
+                err.style.display = "block";
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem("bss_logged_in_user");
+            location.reload();
+        }
+
+        function setupUserSession(username) {
+            document.getElementById('activeUsernameDisplay').innerText = username;
+            document.getElementById('topbarUserRole').innerText = username === 'admin' ? 'Administrator' : 'Rekan Kerja (User)';
+            
+            if (username === 'admin') {
+                document.getElementById('adminMenuSection').style.display = 'block';
+            } else {
+                document.getElementById('adminMenuSection').style.display = 'none';
+            }
+        }
+
+        function showDashboardView() {
+            document.getElementById('viewDashboard').style.display = 'block';
+            document.getElementById('viewAdmin').style.display = 'none';
+        }
+
+        function showAdminView() {
+            document.getElementById('viewDashboard').style.display = 'none';
+            document.getElementById('viewAdmin').style.display = 'block';
+            loadUserTable();
+        }
+
+        // FUNGSI ADMIN: TAMBAH / GANTI PASSWORD AKUN
+        function handleSaveUser(e) {
+            e.preventDefault();
+            let u = document.getElementById('adminInputUser').value.trim();
+            let p = document.getElementById('adminInputPass').value.trim();
+            if (!u || !p) return;
+
+            let users = JSON.parse(localStorage.getItem("bss_users"));
+            users[u] = p;
+            localStorage.setItem("bss_users", JSON.stringify(users));
+
+            alert("Berhasil menyimpan/memperbarui akun: " + u);
+            document.getElementById('adminInputUser').value = "";
+            document.getElementById('adminInputPass').value = "";
+            loadUserTable();
+        }
+
+        function loadUserTable() {
+            let users = JSON.parse(localStorage.getItem("bss_users"));
+            let tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = "";
+
+            for (let u in users) {
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="font-weight-bold text-dark">${u}</td>
+                    <td><code>${users[u]}</code></td>
+                    <td class="text-center">
+                        ${u !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u}')"><i class="fas fa-trash"></i> Hapus</button>` : `<span class="badge badge-success">Admin Utama</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function deleteUser(username) {
+            if (confirm("Yakin ingin menghapus akses untuk akun: " + username + "?")) {
+                let users = JSON.parse(localStorage.getItem("bss_users"));
+                delete users[username];
+                localStorage.setItem("bss_users", JSON.stringify(users));
+                loadUserTable();
+            }
+        }
+
+        // ----------------- KONTROL DASHBOARD & KONTRAK -----------------
         const CONTRACT_CONFIGS = [
             {
-                // Proyek 1 (7203250036)
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv",
                 editUrl: "https://docs.google.com/spreadsheets/d/1IUGZSY-pipW2cfojM5x0Su-FJ2QNU5OLu7dLxVxd8t4/edit?gid=1613946226#gid=1613946226"
             },
             {
-                // Proyek 2 (7207250142)
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzJOIWZ-wG9RFjmwow4v-FAgq_w-p9zyk-qC8WWUFg6BgGvwCNyVjj19-slxYyhBSMGKjLsGMREMBv/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/13CZmXovEtwfXJAUmjOumv5Mr-beLP1kFOr8ywc3WgY0/edit?gid=670375575#gid=670375575"
             },
             {
-                // Proyek 3 (7201250141)
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=1348549908#gid=1348549908"
             }
@@ -294,17 +514,14 @@
 
         let contractData = {};
 
-        // PARSER CSV CERDAS
         function parseCSVRow(str) {
             let lines = str.split(/\r\n|\n/);
             let result = [];
-            
             for (let line of lines) {
                 if (!line.trim()) continue;
                 let row = [];
-                let inQuote = false;
                 let entry = '';
-                
+                let inQuote = false;
                 for (let i = 0; i < line.length; i++) {
                     let c = line[i];
                     if (c === '"') {
@@ -317,48 +534,22 @@
                     }
                 }
                 row.push(entry.trim());
-
-                if (row.length > 7 && /^\d+$/.test(row[6]) && /^\d+$/.test(row[7])) {
-                    row[6] = row[6] + "," + row[7];
-                    row.splice(7, 1);
-                }
-
                 result.push(row);
             }
             return result;
         }
 
-        // FUNGSI PEMBERSIH ANGKA YANG DISESUAIKAN DENGAN FORMAT EXCEL/SHEETS
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
-            
-            // Jika mengandung koma, tangani sebagai desimal
-            if (s.includes(",")) {
-                let parts = s.split(",");
-                let integerPart = parts[0].replace(/\./g, ""); 
-                let decimalPart = parts[1] || "00";           
-                s = integerPart + "." + decimalPart;          
-            } else {
-                s = s.replace(/\./g, "");
-            }
-
+            s = s.replace(/\./g, "").replace(",", ".");
             let num = parseFloat(s);
-            if (isNaN(num)) return 0;
-
-            // Koreksi otomatis jika angka dari Sheet terbaca berlebih akibat format desimal (.00)
-            // Karena nilai asli Anda sekitar 42 Miliar, jika terbaca di atas 400 Triliun, sesuaikan pembagiannya
-            return num;
+            return isNaN(num) ? 0 : Math.round(num);
         }
 
         function formatRupiah(angka) {
             let num = cleanNumber(angka);
-            // Karena nilai di Google Sheet menggunakan format standar ribuan dengan desimal .00,
-            // jika angka terbaca 100x lipat (misal karena terbaca sebagai 4299728242898.00), kita bagi 100 agar pas ke 42 Miliar.
-            if (num > 100000000000000) { 
-                num = num / 100;
-            }
-            return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            return "Rp " + num.toLocaleString('id-ID');
         }
 
         async function initDashboard() {
@@ -368,8 +559,6 @@
             sheetDropdown.innerHTML = "";
 
             for (let config of CONTRACT_CONFIGS) {
-                if (config.csvUrl.includes("MASUKKAN_LINK")) continue;
-
                 try {
                     let response = await fetch(config.csvUrl);
                     if (!response.ok) continue;
@@ -393,7 +582,6 @@
                     let remainingContractVal = rows[15] && rows[15][6] ? cleanNumber(rows[15][6]) : (contractVol - contractRealization);
 
                     contractData[contractNum] = {
-                        contractNumber: contractNum,
                         contractName: contractName,
                         startDate: startDate,
                         endDate: endDate,
@@ -422,7 +610,7 @@
                     sheetDropdown.appendChild(sheetOpt);
 
                 } catch (err) {
-                    console.error("Gagal memuat data dari URL:", config.csvUrl, err);
+                    console.error("Gagal memuat URL:", config.csvUrl, err);
                 }
             }
 
