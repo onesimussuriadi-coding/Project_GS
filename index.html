@@ -25,7 +25,7 @@
 
 <body id="page-top" onload="checkAuth()">
 
-    <!-- HALAMAN LOGIN (MUNCUL JIKA BELUM MASUK) -->
+    <!-- HALAMAN LOGIN -->
     <div id="login-overlay">
         <div class="container">
             <div class="row justify-content-center">
@@ -73,7 +73,7 @@
                     <span>Dashboard</span></a>
             </li>
 
-            <!-- MENU KHUSUS ADMIN (HANYA MUNCUL JIKA USERNAME = admin) -->
+            <!-- MENU ADMIN -->
             <div id="adminMenuSection" style="display:none;">
                 <hr class="sidebar-divider">
                 <div class="sidebar-heading">Admin Panel</div>
@@ -118,20 +118,15 @@
                 </nav>
                 <!-- End of Topbar -->
 
-                <!-- BEGIN PAGE CONTENT: TAMPILAN DASHBOARD -->
+                <!-- BEGIN PAGE CONTENT: DASHBOARD -->
                 <div class="container-fluid" id="viewDashboard">
-
-                    <!-- JUDUL PERUSAHAAN -->
                     <div class="mb-3">
                         <h2 class="text-primary font-weight-bold mb-0" style="letter-spacing: 0.5px;">PT. BANGGAI SENTRAL SULAWESI</h2>
                         <p class="text-muted font-weight-bold mb-3" style="font-size: 1.05rem;">General Contractor and Suppliers</p>
                     </div>
 
-                    <!-- Page Heading & Dropdown Kontrak -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Dashboard Pemantauan Kontrak</h1>
-                        
-                        <!-- PILIHAN KONTRAK (DROPDOWN DINAMIS) -->
                         <div class="form-inline">
                             <label class="mr-2 font-weight-bold text-primary" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Contract Number:</label>
                             <select id="contractSelect" class="form-control form-control-sm font-weight-bold border-primary shadow-sm" onchange="onContractChange()">
@@ -140,7 +135,7 @@
                         </div>
                     </div>
 
-                    <!-- KOTAK INFORMASI DETAIL KONTRAK -->
+                    <!-- KOTAK INFORMASI -->
                     <div class="row mb-4">
                         <div class="col-xl-12">
                             <div class="card border-left-info shadow h-100 py-2">
@@ -152,19 +147,14 @@
                                             <div class="row text-muted small align-items-center">
                                                 <div class="col-md-4">📅 Periode: <span id="info-contract-date" class="font-weight-bold text-dark">-</span></div>
                                                 <div class="col-md-4">⏳ Sisa Waktu: <span id="info-contract-remaining" class="font-weight-bold text-danger">-</span> Hari</div>
-                                                
-                                                <!-- TOMBOL DROPDOWN GOOGLE SHEET DINAMIS -->
                                                 <div class="col-md-4 text-right">
                                                     <div class="dropdown">
                                                         <button class="btn btn-sm btn-success dropdown-toggle shadow-sm font-weight-bold" type="button" id="dropdownSheetButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                             <i class="fas fa-database fa-sm text-white-50"></i> Proses / Edit Google Sheet
                                                         </button>
-                                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownSheetButton" id="sheetDropdownList">
-                                                            <!-- Link edit sheet masuk otomatis -->
-                                                        </div>
+                                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownSheetButton" id="sheetDropdownList"></div>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -173,9 +163,8 @@
                         </div>
                     </div>
 
-                    <!-- 3 KARTU UTAMA KONTROL KONTRAK -->
+                    <!-- 3 KARTU UTAMA -->
                     <div class="row">
-                        <!-- Contract Value -->
                         <div class="col-xl-4 col-md-6 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
                                 <div class="card-body">
@@ -189,8 +178,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Contract Realization -->
                         <div class="col-xl-4 col-md-6 mb-4">
                             <div class="card border-left-warning shadow h-100 py-2">
                                 <div class="card-body">
@@ -204,8 +191,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Remaining Contract Value -->
                         <div class="col-xl-4 col-md-6 mb-4">
                             <div class="card border-left-success shadow h-100 py-2">
                                 <div class="card-body">
@@ -221,9 +206,8 @@
                         </div>
                     </div>
 
-                    <!-- 5 KARTU RINCIAN PENYERAPAN -->
+                    <!-- 5 KARTU RINCIAN -->
                     <div class="row">
-                        <!-- PO Submission -->
                         <div class="col-xl-2 col-md-4 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
                                 <div class="card-body px-2">
@@ -237,8 +221,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- PO Issued -->
                         <div class="col-xl-2 col-md-4 mb-4">
                             <div class="card border-left-success shadow h-100 py-2">
                                 <div class="card-body px-2">
@@ -252,8 +234,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- WAN Submission -->
                         <div class="col-xl-2 col-md-4 mb-4">
                             <div class="card border-left-info shadow h-100 py-2">
                                 <div class="card-body px-2">
@@ -267,8 +247,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- WAN Issued -->
                         <div class="col-xl-2 col-md-4 mb-4">
                             <div class="card border-left-warning shadow h-100 py-2">
                                 <div class="card-body px-2">
@@ -282,8 +260,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Invoice Submission -->
                         <div class="col-xl-2 col-md-4 mb-4">
                             <div class="card border-left-warning shadow h-100 py-2">
                                 <div class="card-body px-2">
@@ -298,18 +274,15 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
-                <!-- END PAGE CONTENT: DASHBOARD -->
+                <!-- END DASHBOARD -->
 
-                <!-- BEGIN PAGE CONTENT: ADMIN PANEL (KELOLA AKUN REKAN KERJA) -->
+                <!-- BEGIN ADMIN PANEL -->
                 <div class="container-fluid" id="viewAdmin" style="display:none;">
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Kelola Akun Rekan Kerja</h1>
                     </div>
-
                     <div class="row">
-                        <!-- Form Tambah/Ubah Akun -->
                         <div class="col-xl-5 mb-4">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3 bg-primary text-white font-weight-bold">
@@ -319,7 +292,7 @@
                                     <form onsubmit="handleSaveUser(event)">
                                         <div class="form-group">
                                             <label class="font-weight-bold small">Username Rekan Kerja:</label>
-                                            <input type="text" class="form-control" id="adminInputUser" placeholder="contoh: rekan1" required>
+                                            <input type="text" class="form-control" id="adminInputUser" placeholder="contoh: Itha" required>
                                         </div>
                                         <div class="form-group">
                                             <label class="font-weight-bold small">Password Baru:</label>
@@ -330,8 +303,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Daftar Akun Terdaftar -->
                         <div class="col-xl-7 mb-4">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3 bg-info text-white font-weight-bold">
@@ -347,9 +318,7 @@
                                                     <th class="text-center">Aksi</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="userTableBody">
-                                                <!-- Terisi otomatis -->
-                                            </tbody>
+                                            <tbody id="userTableBody"></tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -357,7 +326,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- END PAGE CONTENT: ADMIN PANEL -->
+                <!-- END ADMIN PANEL -->
 
             </div>
             <!-- End of Main Content -->
@@ -379,20 +348,21 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE SISTEM LOGIN & MULTI PROYEK -->
+    <!-- KODE SISTEM LOGIN PERMANEN -->
     <script>
-        // DAFTAR AKUN DEFAULT (ADMIN UTAMA ANDA + REKAN KERJA)
-        // Anda bisa ubah password admin di sini, atau tambah akun rekan kerja baru
-        const DEFAULT_USERS = {
-            "admin": "bss2026",      // Akun Anda (Admin Utama, bisa kelola akun lain)
-            "rekan": "bssrekan123"   // Akun contoh untuk rekan kerja
+        // DAFTAR AKUN UTAMA YANG PERMANEN UNTUK SEMUA PERANGKAT REKAN KERJA
+        const GLOBAL_USERS = {
+            "admin": "bss2026",
+            "Itha": "Itha123",
+            "Ireine": "Ireine123",
+            "Yanuar": "Yanuar123",
+            "Chenly": "Chenly123",
+            "itha_bss": "itha_123"
         };
 
-        // Simpan ke localStorage agar manajemen password permanen di browser
         function initUsersStorage() {
-            if (!localStorage.getItem("bss_users")) {
-                localStorage.setItem("bss_users", JSON.stringify(DEFAULT_USERS));
-            }
+            // Selalu sinkronkan dengan akun global di atas agar perangkat lain langsung terbaca
+            localStorage.setItem("bss_users", JSON.stringify(GLOBAL_USERS));
         }
 
         function checkAuth() {
@@ -433,7 +403,6 @@
         function setupUserSession(username) {
             document.getElementById('activeUsernameDisplay').innerText = username;
             document.getElementById('topbarUserRole').innerText = username === 'admin' ? 'Administrator' : 'Rekan Kerja (User)';
-            
             if (username === 'admin') {
                 document.getElementById('adminMenuSection').style.display = 'block';
             } else {
@@ -452,7 +421,6 @@
             loadUserTable();
         }
 
-        // FUNGSI ADMIN: TAMBAH / GANTI PASSWORD AKUN
         function handleSaveUser(e) {
             e.preventDefault();
             let u = document.getElementById('adminInputUser').value.trim();
@@ -496,7 +464,7 @@
             }
         }
 
-        // ----------------- KONTROL DASHBOARD & KONTRAK -----------------
+        // KONTROL KONTRAK DASHBOARD
         const CONTRACT_CONFIGS = [
             {
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv",
