@@ -272,19 +272,22 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT DENGAN PEMERIKSAAN DESIMAL PRESISI -->
+    <!-- KODE JAVASCRIPT DENGAN PARSING ANGKA PRESISI DESIMAL -->
     <script>
         const CONTRACT_CONFIGS = [
             {
+                // Proyek 1 (7203250036)
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv",
                 editUrl: "https://docs.google.com/spreadsheets/d/1IUGZSY-pipW2cfojM5x0Su-FJ2QNU5OLu7dLxVxd8t4/edit?gid=1613946226#gid=1613946226"
             },
             {
-                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTzJOIWZ-wG9RFjmwow4v-FAgq_w-p9zyk-qC8WWUFg6BgGvwCNyVjj19-slxYyhBSMGKjLsGMREMBv/pub?output=csv", // Ganti jika link CSV Proyek 2 berbeda
+                // Proyek 2 (7207250142) - Pastikan link berakhiran /pub?output=csv
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS2H4x60o-l_9k2I7bI-cCxY2R8Z0a3Y9w6Ra7y9Z0a3Y9w6Ra7y9Z0a3Y9w6Ra7y9/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/13CZmXovEtwfXJAUmjOumv5Mr-beLP1kFOr8ywc3WgY0/edit?gid=670375575#gid=670375575"
             },
             {
-                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv", // Ganti jika link CSV Proyek 3 berbeda
+                // Proyek 3 (7201250141) - Pastikan link berakhiran /pub?output=csv
+                csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRS73allrf9EqlfPaAUDDWmT9TtZI0pYfv2WYpX2e0vmvBhxxKW4cxBvP_sFQW31bqQMhePIFjbNNeM/pub?output=csv", 
                 editUrl: "https://docs.google.com/spreadsheets/d/1ZLTfACcSUmj6lH24maHLplCwPqzRqzOftlxMnEhpbd8/edit?gid=1348549908#gid=1348549908"
             }
         ];
@@ -320,18 +323,18 @@
             return arr;
         }
 
-        // FUNGSI PEMBERSIH ANGKA DENGAN PENANGANAN DESIMAL PRESISI
+        // FUNGSI PEMBERSIH ANGKA PRESISI UNTUK FORMAT INDONESIA
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
-            // Jika menggunakan format Indonesia (Titik sebagai pemisah ribuan, Koma sebagai desimal)
+            // Jika ada koma, asumsikan itu pemisah desimal gaya Indonesia
             if (s.includes(",")) {
-                // Hapus semua titik pemisah ribuan
+                // Hapus semua titik ribuan
                 s = s.replace(/\./g, "");
-                // Ubah koma desimal menjadi titik standar pemograman
+                // Ubah koma menjadi titik desimal standar
                 s = s.replace(",", ".");
             } else {
-                // Jika tidak ada koma, hilangkan titik jika itu pemisah ribuan
+                // Jika murni angka dengan titik ribuan tanpa koma
                 s = s.replace(/\./g, "");
             }
             let num = parseFloat(s);
@@ -350,7 +353,8 @@
             sheetDropdown.innerHTML = "";
 
             for (let config of CONTRACT_CONFIGS) {
-                if (config.csvUrl.includes("MASUKKAN_LINK") || config.csvUrl.includes("2PACX-1vS1H3")) continue;
+                // Lewati placeholder jika belum diisi link asli yang benar
+                if (config.csvUrl.includes("MASUKKAN_LINK")) continue;
 
                 try {
                     let response = await fetch(config.csvUrl);
@@ -407,36 +411,6 @@
                 }
             }
 
-            let firstKeys = Object.keys(contractData);
-            if (firstKeys.length > 0) {
-                select.value = firstKeys[0];
-                displayContractData(firstKeys[0]);
-            }
-        }
+Seiring dengan itu, pastikan link CSV untuk Proyek 2 (`7207250142`) dan Proyek 3 (`7201250141`) di bagian `CONTRACT_CONFIGS` atas sudah diganti dengan link Publish CSV asli masing-masing file (yang berakhiran `pub?output=csv`), bukan link browser `/edit`.
 
-        function displayContractData(contractId) {
-            let data = contractData[contractId];
-            if (!data) return;
-
-            document.getElementById('info-contract-name').innerText = data.contractName;
-            document.getElementById('info-contract-date').innerText = data.startDate + " - " + data.endDate;
-            document.getElementById('info-contract-remaining').innerText = data.remainingDays;
-
-            document.getElementById('val-contract').innerText = formatRupiah(data.volume);
-            document.getElementById('val-realization').innerText = formatRupiah(data.realization);
-            document.getElementById('val-remaining').innerText = formatRupiah(data.remainingValue);
-            document.getElementById('val-po-sub').innerText = formatRupiah(data.poSub);
-            document.getElementById('val-po-issued').innerText = formatRupiah(data.poIssued);
-            document.getElementById('val-wan-sub').innerText = formatRupiah(data.wanSub);
-            document.getElementById('val-wan-issued').innerText = formatRupiah(data.wanIssued);
-            document.getElementById('val-invoice').innerText = formatRupiah(data.invoiceSub);
-        }
-
-        function onContractChange() {
-            let selectedId = document.getElementById('contractSelect').value;
-            displayContractData(selectedId);
-        }
-    </script>
-</body>
-
-</html>
+Setelah diperbarui di GitHub, tekan **Ctrl + F5** pada halaman *dashboard* Anda untuk melihat hasilnya secara akurat!
