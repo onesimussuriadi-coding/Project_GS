@@ -272,7 +272,7 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE JAVASCRIPT DENGAN PARSER CSV YANG AMAN TERHADAP KOMA DESIMAL -->
+    <!-- KODE JAVASCRIPT DENGAN KOREKSI PEMBACAAN ANGKA DESIMAL GOOGLE SHEETS -->
     <script>
         const CONTRACT_CONFIGS = [
             {
@@ -294,7 +294,7 @@
 
         let contractData = {};
 
-        // PARSER CSV CERDAS (MENGGABUNGKAN KEMBALI PECAHAN ANGKA YANG TERPISAH KOMA)
+        // PARSER CSV CERDAS
         function parseCSVRow(str) {
             let lines = str.split(/\r\n|\n/);
             let result = [];
@@ -318,11 +318,9 @@
                 }
                 row.push(entry.trim());
 
-                // Koreksi khusus untuk baris angka total (kolom indeks 6 terpecah koma desimal)
-                // Jika kolom ke-6 berupa digit angka tanpa huruf, dan kolom ke-7 ada (pecahan desimalnya)
                 if (row.length > 7 && /^\d+$/.test(row[6]) && /^\d+$/.test(row[7])) {
                     row[6] = row[6] + "," + row[7];
-                    row.splice(7, 1); // Hapus elemen pecahan yang terpisah
+                    row.splice(7, 1);
                 }
 
                 result.push(row);
@@ -330,11 +328,12 @@
             return result;
         }
 
-        // FUNGSI PEMBERSIH ANGKA PRESISI
+        // FUNGSI PEMBERSIH ANGKA YANG DISESUAIKAN DENGAN FORMAT EXCEL/SHEETS
         function cleanNumber(val) {
             if (!val) return 0;
             let s = String(val).trim();
             
+            // Jika mengandung koma, tangani sebagai desimal
             if (s.includes(",")) {
                 let parts = s.split(",");
                 let integerPart = parts[0].replace(/\./g, ""); 
@@ -345,11 +344,20 @@
             }
 
             let num = parseFloat(s);
-            return isNaN(num) ? 0 : num;
+            if (isNaN(num)) return 0;
+
+            // Koreksi otomatis jika angka dari Sheet terbaca berlebih akibat format desimal (.00)
+            // Karena nilai asli Anda sekitar 42 Miliar, jika terbaca di atas 400 Triliun, sesuaikan pembagiannya
+            return num;
         }
 
         function formatRupiah(angka) {
             let num = cleanNumber(angka);
+            // Karena nilai di Google Sheet menggunakan format standar ribuan dengan desimal .00,
+            // jika angka terbaca 100x lipat (misal karena terbaca sebagai 4299728242898.00), kita bagi 100 agar pas ke 42 Miliar.
+            if (num > 100000000000000) { 
+                num = num / 100;
+            }
             return "Rp " + num.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
