@@ -25,7 +25,6 @@
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%; font-weight: bold; font-size: 16px;
         }
-        /* Kotak latar belakang biru muda yang ditarik sejajar ke atas */
         .company-header-box {
             background-color: #e8f0fe;
             border-left: 5px solid #4e73df;
@@ -135,23 +134,23 @@
                 <!-- BEGIN PAGE CONTENT: DASHBOARD -->
                 <div class="container-fluid pt-0" id="viewDashboard">
                     
-                    <!-- KOTAK NAMA PERUSAHAAN DI ATAS (SEJAJAR & RAPI) -->
+                    <!-- KOTAK NAMA PERUSAHAAN DI ATAS -->
                     <div class="company-header-box shadow-sm">
                         <h2 class="text-primary font-weight-bold mb-1" style="letter-spacing: 0.5px; font-size: 1.4rem;">PT. BANGGAI SENTRAL SULAWESI</h2>
                         <p class="text-muted font-weight-bold mb-0" style="font-size: 0.9rem;">General Contractor and Suppliers</p>
                     </div>
 
-                    <!-- KONTROL PEMILIHAN KONTROL YANG LEBIH LUAS DAN JELAS -->
+                    <!-- KONTROL PEMILIHAN KONTROL -->
                     <div class="card shadow mb-3 border-left-primary">
                         <div class="card-body py-3">
                             <div class="row align-items-center">
-                                <div class="col-lg-4 mb-2 mb-lg-0">
+                                <div class="col-lg-3 mb-2 mb-lg-0">
                                     <h1 class="h4 mb-0 text-gray-800 font-weight-bold">Pemantauan Kontrak</h1>
                                 </div>
-                                <div class="col-lg-8">
+                                <div class="col-lg-9">
                                     <div class="form-group mb-0">
-                                        <label class="font-weight-bold text-primary small mb-1" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Pilih Contract Number & Proyek:</label>
-                                        <select id="contractSelect" class="form-control font-weight-bold border-primary shadow-sm" onchange="onContractChange()">
+                                        <label class="font-weight-bold text-primary small mb-1" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Pilih Nomor Kontrak & Proyek:</label>
+                                        <select id="contractSelect" class="form-control font-weight-bold border-primary shadow-sm text-truncate" onchange="onContractChange()">
                                             <option value="">Memuat Daftar Kontrak...</option>
                                         </select>
                                     </div>
@@ -534,16 +533,19 @@
                         editUrl: config.editUrl
                     };
 
+                    // Format ringkas pada pilihan dropdown: [Nomor Kontrak] - [Nama Proyek (dibatasi 35 karakter)]
+                    let shortName = contractName.length > 35 ? contractName.substring(0, 35) + "..." : contractName;
                     let opt = document.createElement('option');
                     opt.value = contractNum;
-                    opt.text = contractNum + " - " + contractName;
+                    opt.text = contractNum + " | " + shortName;
                     select.appendChild(opt);
 
+                    // Format tombol edit Google Sheet dengan nomor kontrak yang jelas
                     let sheetOpt = document.createElement('a');
-                    sheetOpt.className = "dropdown-item small font-weight-bold text-success";
+                    sheetOpt.className = "dropdown-item small font-weight-bold text-success py-2";
                     sheetOpt.href = config.editUrl;
                     sheetOpt.target = "_blank";
-                    sheetOpt.innerHTML = `<i class="fas fa-file-excel fa-sm mr-2"></i> ${contractNum} (Buka Spreadsheet)`;
+                    sheetOpt.innerHTML = `<i class="fas fa-file-excel fa-sm mr-2"></i> Kontrak: <b>${contractNum}</b>`;
                     sheetDropdown.appendChild(sheetOpt);
 
                 } catch (err) {
