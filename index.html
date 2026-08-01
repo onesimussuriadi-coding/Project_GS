@@ -25,6 +25,14 @@
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%; font-weight: bold; font-size: 16px;
         }
+        /* Kotak latar belakang biru muda untuk nama perusahaan */
+        .company-header-box {
+            background-color: #e8f0fe;
+            border-left: 5px solid #4e73df;
+            border-radius: 0.35rem;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
@@ -41,8 +49,6 @@
                                 <h1 class="h4 text-gray-900 font-weight-bold">GENERAL SERVICES</h1>
                                 <span class="text-xs text-muted font-weight-bold">PT. BANGGAI SENTRAL SULAWESI</span>
                             </div>
-                            
-                            <!-- Menggunakan div biasa untuk menghindari macet form HTML -->
                             <div>
                                 <div class="form-group">
                                     <input type="text" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (@ptbss.id)..." autocomplete="off">
@@ -52,7 +58,6 @@
                                 </div>
                                 <button type="button" onclick="handleSecureLogin()" class="btn btn-primary btn-user btn-block font-weight-bold">Login ke Dashboard</button>
                             </div>
-
                             <div id="loginError" class="text-danger text-center small mt-3 font-weight-bold" style="display:none;"></div>
                         </div>
                     </div>
@@ -127,14 +132,17 @@
                 <!-- End of Topbar -->
 
                 <!-- BEGIN PAGE CONTENT: DASHBOARD -->
-                <div class="container-fluid" id="viewDashboard">
-                    <div class="mb-3">
-                        <h2 class="text-primary font-weight-bold mb-0" style="letter-spacing: 0.5px;">PT. BANGGAI SENTRAL SULAWESI</h2>
-                        <p class="text-muted font-weight-bold mb-3" style="font-size: 1.05rem;">General Contractor and Suppliers</p>
+                <div class="container-fluid pt-0" id="viewDashboard">
+                    
+                    <!-- KOTAK NAMA PERUSAHAAN DI ATAS DENGAN LATAR BELAKANG BIRU MUDA -->
+                    <div class="company-header-box shadow-sm">
+                        <h2 class="text-primary font-weight-bold mb-1" style="letter-spacing: 0.5px; font-size: 1.5rem;">PT. BANGGAI SENTRAL SULAWESI</h2>
+                        <p class="text-muted font-weight-bold mb-0" style="font-size: 0.95rem;">General Contractor and Suppliers</p>
                     </div>
 
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Dashboard Pemantauan Kontrak</h1>
+                    <!-- JUDUL DASHBOARD & PILIHAN KONTRAK DIANGKAT KE ATAS -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-3">
+                        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Dashboard Pemantauan Kontrak</h1>
                         <div class="form-inline">
                             <label class="mr-2 font-weight-bold text-primary" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Contract Number:</label>
                             <select id="contractSelect" class="form-control form-control-sm font-weight-bold border-primary shadow-sm" onchange="onContractChange()">
@@ -144,7 +152,7 @@
                     </div>
 
                     <!-- KOTAK INFORMASI -->
-                    <div class="row mb-4">
+                    <div class="row mb-3">
                         <div class="col-xl-12">
                             <div class="card border-left-info shadow h-100 py-2">
                                 <div class="card-body">
@@ -173,7 +181,7 @@
 
                     <!-- 3 KARTU UTAMA -->
                     <div class="row">
-                        <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="col-xl-4 col-md-6 mb-3">
                             <div class="card border-left-primary shadow h-100 py-2">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
@@ -186,7 +194,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="col-xl-4 col-md-6 mb-3">
                             <div class="card border-left-warning shadow h-100 py-2">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
@@ -199,7 +207,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="col-xl-4 col-md-6 mb-3">
                             <div class="card border-left-success shadow h-100 py-2">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
@@ -216,7 +224,7 @@
 
                     <!-- 5 KARTU RINCIAN -->
                     <div class="row">
-                        <div class="col-xl-2 col-md-4 mb-4">
+                        <div class="col-xl-2 col-md-4 mb-3">
                             <div class="card border-left-primary shadow h-100 py-2">
                                 <div class="card-body px-2">
                                     <div class="row no-gutters align-items-center">
@@ -229,7 +237,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-2 col-md-4 mb-4">
+                        <div class="col-xl-2 col-md-4 mb-3">
                             <div class="card border-left-success shadow h-100 py-2">
                                 <div class="card-body px-2">
                                     <div class="row no-gutters align-items-center">
@@ -242,7 +250,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-2 col-md-4 mb-4">
+                        <div class="col-xl-2 col-md-4 mb-3">
                             <div class="card border-left-info shadow h-100 py-2">
                                 <div class="card-body px-2">
                                     <div class="row no-gutters align-items-center">
@@ -255,7 +263,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-2 col-md-4 mb-4">
+                        <div class="col-xl-2 col-md-4 mb-3">
                             <div class="card border-left-warning shadow h-100 py-2">
                                 <div class="card-body px-2">
                                     <div class="row no-gutters align-items-center">
@@ -268,7 +276,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xl-2 col-md-4 mb-4">
+                        <div class="col-xl-2 col-md-4 mb-3">
                             <div class="card border-left-warning shadow h-100 py-2">
                                 <div class="card-body px-2">
                                     <div class="row no-gutters align-items-center">
@@ -312,7 +320,7 @@
             <!-- End of Main Content -->
 
             <!-- Footer -->
-            <footer class="sticky-footer bg-white">
+            <footer class="sticky-footer bg-white py-3">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
                         <span>Copyright &copy; General Services 2026</span>
@@ -330,19 +338,16 @@
 
     <!-- SISTEM KEAMANAN KORPORAT & DASHBOARD -->
     <script>
-        // =========================================================================
-        // PENGATURAN AKUN REKAN KERJA (@ptbss.id)
-        // =========================================================================
-       const DAFTAR_AKUN_PEGAWAI = { 
-    "ones@ptbss.id": { password: "bss123", role: "Administrator" }, 
-    "admin@ptbss.id": { password: "bss123", role: "Administrator" }, 
-    "rekan@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
-    "ireine@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
-    "itha@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
-    "yanuar@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
-    "chen@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
-    "surini@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" } 
-};
+        const DAFTAR_AKUN_PEGAWAI = { 
+            "ones@ptbss.id": { password: "bss123", role: "Administrator" }, 
+            "admin@ptbss.id": { password: "bss123", role: "Administrator" }, 
+            "rekan@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
+            "ireine@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
+            "itha@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
+            "yanuar@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
+            "chen@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }, 
+            "surini@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" } 
+        };
 
         window.addEventListener('DOMContentLoaded', (event) => {
             let activeUser = sessionStorage.getItem('bss_logged_email');
@@ -358,14 +363,12 @@
             let errEl = document.getElementById('loginError');
             errEl.style.display = "none";
 
-            // Validasi wajib domain @ptbss.id
             if (!emailInput.endsWith('@ptbss.id')) {
                 errEl.innerText = "Akses Ditolak: Hanya email resmi berakhiran @ptbss.id yang diizinkan!";
                 errEl.style.display = 'block';
                 return;
             }
 
-            // Cek apakah akun terdaftar di sistem
             if (DAFTAR_AKUN_PEGAWAI[emailInput]) {
                 if (DAFTAR_AKUN_PEGAWAI[emailInput].password === passInput) {
                     sessionStorage.setItem('bss_logged_email', emailInput);
@@ -491,7 +494,7 @@
                     let rows = parseCSVRow(data);
                     if (rows.length < 15) continue;
 
-                    let contractNum = rows[1] && rows[1][2] ? rows[1][2].trim() : "";
+                    let contractNum = rows[0] && rows[0][2] ? rows[0][2].trim() : "";
                     let contractName = rows[2] && rows[2][2] ? rows[2][2].trim() : "";
                     let startDate = rows[4] && rows[4][2] ? rows[4][2].trim() : "";
                     let endDate = rows[5] && rows[5][2] ? rows[5][2].trim() : "";
