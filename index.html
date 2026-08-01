@@ -30,7 +30,7 @@
 
 <body id="page-top">
 
-    <!-- HALAMAN LOGIN PROTEKSI -->
+    <!-- HALAMAN LOGIN FIREBASE AUTH -->
     <div id="login-overlay">
         <div class="container">
             <div class="row justify-content-center">
@@ -41,13 +41,16 @@
                                 <h1 class="h4 text-gray-900 font-weight-bold">GENERAL SERVICES</h1>
                                 <span class="text-xs text-muted font-weight-bold">PT. BANGGAI SENTRAL SULAWESI</span>
                             </div>
-                            <form id="loginForm" onsubmit="handleSimpleLogin(event)">
+                            <form id="loginForm" onsubmit="handleLogin(event)">
                                 <div class="form-group">
-                                    <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Kode Sandi Dashboard..." required>
+                                    <input type="email" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Akun..." required autocomplete="email">
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-user btn-block font-weight-bold">Buka Dashboard</button>
+                                <div class="form-group">
+                                    <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required autocomplete="current-password">
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-user btn-block font-weight-bold">Login ke Dashboard</button>
                             </form>
-                            <div id="loginError" class="text-danger text-center small mt-3 font-weight-bold" style="display:none;">Kode sandi salah! Silakan coba lagi.</div>
+                            <div id="loginError" class="text-danger text-center small mt-3 font-weight-bold" style="display:none;"></div>
                         </div>
                     </div>
                 </div>
@@ -70,17 +73,28 @@
             <hr class="sidebar-divider my-0">
 
             <li class="nav-item active">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="#" onclick="showDashboardView()">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
+
+            <!-- MENU ADMIN KHUSUS -->
+            <div id="adminMenuSection" style="display:none;">
+                <hr class="sidebar-divider">
+                <div class="sidebar-heading">Admin Panel</div>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="showAdminView()">
+                        <i class="fas fa-fw fa-users-cog"></i>
+                        <span>Kelola Akun Rekan Kerja</span></a>
+                </li>
+            </div>
 
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Sistem</div>
             <li class="nav-item">
                 <a class="nav-link" href="#" onclick="handleLogout()">
                     <i class="fas fa-fw fa-sign-out-alt"></i>
-                    <span>Kunci Kembali (Logout)</span></a>
+                    <span>Logout (<span id="activeUsernameDisplay"></span>)</span></a>
             </li>
 
             <div class="text-center d-none d-md-inline mt-3">
@@ -102,8 +116,8 @@
                     </button>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow d-flex align-items-center">
-                            <span class="mr-3 d-none d-lg-inline text-gray-600 font-weight-bold small">Administrator (BSS)</span>
-                            <div class="user-avatar-circle shadow-sm">B</div>
+                            <span class="mr-3 d-none d-lg-inline text-gray-600 font-weight-bold small" id="topbarUserRole">User</span>
+                            <div id="userAvatarContainer" class="user-avatar-circle shadow-sm">A</div>
                         </li>
                     </ul>
                 </nav>
@@ -268,6 +282,51 @@
                 </div>
                 <!-- END DASHBOARD -->
 
+                <!-- BEGIN ADMIN PANEL -->
+                <div class="container-fluid" id="viewAdmin" style="display:none;">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Kelola Akun Rekan Kerja (Firebase Auth)</h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-5 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 bg-primary text-white font-weight-bold">
+                                    <i class="fas fa-user-plus fa-sm mr-2"></i> Tambah Akun Baru
+                                </div>
+                                <div class="card-body">
+                                    <form onsubmit="handleCreateUser(event)">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small">Email Rekan Kerja:</label>
+                                            <input type="email" class="form-control" id="adminInputEmail" placeholder="contoh: staff@bss.com" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small">Password Akun (Min. 6 Karakter):</label>
+                                            <input type="text" class="form-control" id="adminInputPass" placeholder="Masukkan password..." required>
+                                        </div>
+                                        <button type="submit" class="btn btn-success btn-block font-weight-bold">Buat Akun di Firebase</button>
+                                    </form>
+                                    <div id="adminActionStatus" class="small mt-2 font-weight-bold text-center" style="display:none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-7 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 bg-info text-white font-weight-bold">
+                                    <i class="fas fa-info-circle fa-sm mr-2"></i> Informasi Keamanan Akun
+                                </div>
+                                <div class="card-body">
+                                    <p class="text-dark">Sistem login saat ini dilindungi penuh oleh <b>Firebase Authentication</b>.</p>
+                                    <ul class="text-muted small">
+                                        <li>Hanya email yang terdaftar di database Firebase yang diizinkan masuk.</li>
+                                        <li>Akun admin dapat mendaftarkan atau memoderasi akun rekan kerja langsung dari panel ini maupun dari konsol Firebase pusat.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END ADMIN PANEL -->
+
             </div>
             <!-- End of Main Content -->
 
@@ -288,44 +347,99 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- SISTEM KEAMANAN & KONTROL DASHBOARD -->
-    <script>
-        // KODE SANDI UTAMA (Anda bisa mengganti kata "bss2026" sesuai keinginan)
-        const KODE_SANDI_RAHASIA = "bss2026";
+    <!-- FIREBASE SDK & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/auth.js";
 
-        // Cek apakah sebelumnya sudah pernah login di browser ini
-        window.addEventListener('DOMContentLoaded', (event) => {
-            if (sessionStorage.getItem('dashboard_terproteksi') === 'true') {
-                bukaDashboard();
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvWgark6nWZuBQjdgYiwX_v3bXvRBXlr0",
+            authDomain: "bss-dashboard-73681.firebaseapp.com",
+            projectId: "bss-dashboard-73681",
+            storageBucket: "bss-dashboard-73681.firebasestorage.app",
+            messagingSenderId: "252320657377",
+            appId: "1:252320657377:web:6144074f593ffd5d46aca0",
+            measurementId: "G-0DZTBMCJ1H"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            let email = document.getElementById('loginUser').value.trim();
+            let pass = document.getElementById('loginPass').value.trim();
+            let err = document.getElementById('loginError');
+            err.style.display = "none";
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    // Login Berhasil
+                })
+                .catch((error) => {
+                    err.innerText = "Gagal Login: Periksa kembali email atau password Anda!";
+                    err.style.display = "block";
+                });
+        };
+
+        window.handleLogout = function() {
+            signOut(auth).then(() => {
+                location.reload();
+            });
+        };
+
+        window.handleCreateUser = function(e) {
+            e.preventDefault();
+            let email = document.getElementById('adminInputEmail').value.trim();
+            let pass = document.getElementById('adminInputPass').value.trim();
+            let statusEl = document.getElementById('adminActionStatus');
+
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    statusEl.style.display = "block";
+                    statusEl.className = "small mt-2 font-weight-bold text-center text-success";
+                    statusEl.innerText = "Berhasil membuat akun untuk: " + email;
+                    document.getElementById('adminInputEmail').value = "";
+                    document.getElementById('adminInputPass').value = "";
+                })
+                .catch((error) => {
+                    statusEl.style.display = "block";
+                    statusEl.className = "small mt-2 font-weight-bold text-center text-danger";
+                    statusEl.innerText = "Gagal membuat akun: " + error.message;
+                });
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('wrapper').style.display = 'flex';
+                
+                let email = user.email;
+                let username = email.split('@')[0];
+                document.getElementById('activeUsernameDisplay').innerText = username;
+                
+                let isAdmin = email.toLowerCase().includes('admin');
+                document.getElementById('topbarUserRole').innerText = isAdmin ? 'Administrator' : 'Rekan Kerja (User)';
+                
+                let firstLetter = username.charAt(0).toUpperCase();
+                document.getElementById('userAvatarContainer').innerText = firstLetter;
+
+                if (isAdmin) {
+                    document.getElementById('adminMenuSection').style.display = 'block';
+                } else {
+                    document.getElementById('adminMenuSection').style.display = 'none';
+                }
+
+                initDashboard();
+            } else {
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('wrapper').style.display = 'none';
             }
         });
+    </script>
 
-        function handleSimpleLogin(e) {
-            e.preventDefault();
-            let inputSandi = document.getElementById('loginPass').value.trim();
-            let err = document.getElementById('loginError');
-
-            if (inputSandi === KODE_SANDI_RAHASIA) {
-                sessionStorage.setItem('dashboard_terproteksi', 'true');
-                bukaDashboard();
-            } else {
-                err.style.display = 'block';
-                document.getElementById('loginPass').value = '';
-            }
-        }
-
-        function bukaDashboard() {
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('wrapper').style.display = 'flex';
-            initDashboard();
-        }
-
-        function handleLogout() {
-            sessionStorage.removeItem('dashboard_terproteksi');
-            location.reload();
-        }
-
-        // KONFIGURASI DATA SPREADSHEET
+    <!-- KONTROL KONTRAK DASHBOARD -->
+    <script>
         const CONTRACT_CONFIGS = [
             {
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv",
@@ -471,6 +585,16 @@
         function onContractChange() {
             let selectedId = document.getElementById('contractSelect').value;
             displayContractData(selectedId);
+        }
+
+        function showDashboardView() {
+            document.getElementById('viewDashboard').style.display = 'block';
+            document.getElementById('viewAdmin').style.display = 'none';
+        }
+
+        function showAdminView() {
+            document.getElementById('viewDashboard').style.display = 'none';
+            document.getElementById('viewAdmin').style.display = 'block';
         }
     </script>
 </body>
