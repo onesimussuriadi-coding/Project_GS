@@ -7,9 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Dashboard General Services - PT. Banggai Sentral Sulawesi</title>
 
+    <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
+    <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
     <style>
         #login-overlay {
@@ -28,6 +30,7 @@
 
 <body id="page-top">
 
+    <!-- HALAMAN LOGIN KORPORAT -->
     <div id="login-overlay">
         <div class="container">
             <div class="row justify-content-center">
@@ -40,7 +43,7 @@
                             </div>
                             <form id="loginForm" onsubmit="handleLogin(event)">
                                 <div class="form-group">
-                                    <input type="email" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (@ptbss.id)..." required autocomplete="email">
+                                    <input type="text" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (contoh: nama@ptbss.id)" required autocomplete="off">
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required autocomplete="current-password">
@@ -55,8 +58,10 @@
         </div>
     </div>
 
+    <!-- Page Wrapper (DASHBOARD UTAMA) -->
     <div id="wrapper" style="display:none;">
 
+        <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -73,6 +78,7 @@
                     <span>Dashboard</span></a>
             </li>
 
+            <!-- MENU ADMIN -->
             <div id="adminMenuSection" style="display:none;">
                 <hr class="sidebar-divider">
                 <div class="sidebar-heading">Admin Panel</div>
@@ -100,10 +106,15 @@
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
 
+            <!-- Main Content -->
             <div id="content">
 
+                <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
@@ -115,6 +126,9 @@
                         </li>
                     </ul>
                 </nav>
+                <!-- End of Topbar -->
+
+                <!-- BEGIN PAGE CONTENT: DASHBOARD -->
                 <div class="container-fluid" id="viewDashboard">
                     <div class="mb-3">
                         <h2 class="text-primary font-weight-bold mb-0" style="letter-spacing: 0.5px;">PT. BANGGAI SENTRAL SULAWESI</h2>
@@ -131,6 +145,7 @@
                         </div>
                     </div>
 
+                    <!-- KOTAK INFORMASI -->
                     <div class="row mb-4">
                         <div class="col-xl-12">
                             <div class="card border-left-info shadow h-100 py-2">
@@ -158,6 +173,7 @@
                         </div>
                     </div>
 
+                    <!-- 3 KARTU UTAMA -->
                     <div class="row">
                         <div class="col-xl-4 col-md-6 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
@@ -200,6 +216,7 @@
                         </div>
                     </div>
 
+                    <!-- 5 KARTU RINCIAN -->
                     <div class="row">
                         <div class="col-xl-2 col-md-4 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
@@ -268,6 +285,9 @@
                         </div>
                     </div>
                 </div>
+                <!-- END DASHBOARD -->
+
+                <!-- BEGIN ADMIN PANEL -->
                 <div class="container-fluid" id="viewAdmin" style="display:none;">
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Manajemen Akun Rekan Kerja (@ptbss.id)</h1>
@@ -311,6 +331,9 @@
                         </div>
                     </div>
                 </div>
+                <!-- END ADMIN PANEL -->
+
+                <!-- BEGIN SETTINGS PANEL (UBAH PASSWORD) -->
                 <div class="container-fluid" id="viewSettings" style="display:none;">
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Pengaturan Keamanan Akun</h1>
@@ -335,7 +358,12 @@
                         </div>
                     </div>
                 </div>
-                </div>
+                <!-- END SETTINGS PANEL -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Footer -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
@@ -346,11 +374,13 @@
         </div>
     </div>
 
+    <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
+    <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/auth.js";
@@ -377,7 +407,7 @@
 
             // Validasi wajib domain @ptbss.id
             if (!email.endsWith('@ptbss.id')) {
-                err.innerText = "Akses Ditolak: Hanya email resmi @ptbss.id yang diizinkan!";
+                err.innerText = "Akses Ditolak: Gunakan email lengkap berakhiran @ptbss.id (contoh: admin@ptbss.id)";
                 err.style.display = "block";
                 return;
             }
@@ -387,7 +417,7 @@
                     // Login Berhasil
                 })
                 .catch((error) => {
-                    err.innerText = "Gagal Login: Email atau Password salah!";
+                    err.innerText = "Gagal Login: Periksa kembali email atau password Anda!";
                     err.style.display = "block";
                 });
         };
@@ -454,7 +484,6 @@
             if (user) {
                 let email = user.email.toLowerCase();
                 
-                // Pastikan hanya domain @ptbss.id yang masuk
                 if (!email.endsWith('@ptbss.id')) {
                     signOut(auth);
                     return;
@@ -486,6 +515,7 @@
         });
     </script>
 
+    <!-- KONTROL KONTRAK DASHBOARD -->
     <script>
         const CONTRACT_CONFIGS = [
             {
