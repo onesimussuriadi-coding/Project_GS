@@ -41,15 +41,18 @@
                                 <h1 class="h4 text-gray-900 font-weight-bold">GENERAL SERVICES</h1>
                                 <span class="text-xs text-muted font-weight-bold">PT. BANGGAI SENTRAL SULAWESI</span>
                             </div>
-                            <form id="loginForm" onsubmit="handleSecureLogin(event)">
+                            
+                            <!-- Menggunakan div biasa untuk menghindari macet form HTML -->
+                            <div>
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (@ptbss.id)..." required autocomplete="off">
+                                    <input type="text" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (@ptbss.id)..." autocomplete="off">
                                 </div>
                                 <div class="form-group">
-                                    <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required autocomplete="current-password">
+                                    <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." autocomplete="current-password">
                                 </div>
-                                <button type="submit" class="btn btn-primary btn-user btn-block font-weight-bold">Login ke Dashboard</button>
-                            </form>
+                                <button type="button" onclick="handleSecureLogin()" class="btn btn-primary btn-user btn-block font-weight-bold">Login ke Dashboard</button>
+                            </div>
+
                             <div id="loginError" class="text-danger text-center small mt-3 font-weight-bold" style="display:none;"></div>
                         </div>
                     </div>
@@ -298,8 +301,6 @@
                                     <ul class="list-group font-weight-bold text-dark" id="accountListUI">
                                         <!-- Diisi otomatis via JavaScript -->
                                     </ul>
-                                    <hr>
-                                    <p class="text-xs text-muted mb-0">💡 *Catatan Admin: Anda dapat mengubah daftar email dan password akun di dalam kode script bagian pengaturan `DAFTAR_AKUN_PEGAWAI` kapan saja.*</p>
                                 </div>
                             </div>
                         </div>
@@ -331,7 +332,6 @@
     <script>
         // =========================================================================
         // PENGATURAN AKUN REKAN KERJA (@ptbss.id)
-        // Anda bebas menambah, mengganti email, atau mengganti password di sini!
         // =========================================================================
         const DAFTAR_AKUN_PEGAWAI = {
             "admin@ptbss.id": { password: "bss123", role: "Administrator" },
@@ -339,7 +339,6 @@
             "rekan@ptbss.id": { password: "bss123", role: "Rekan Kerja (User)" }
         };
 
-        // Cek sesi login saat halaman dimuat
         window.addEventListener('DOMContentLoaded', (event) => {
             let activeUser = sessionStorage.getItem('bss_logged_email');
             if (activeUser && DAFTAR_AKUN_PEGAWAI[activeUser]) {
@@ -348,8 +347,7 @@
             renderAccountList();
         });
 
-        function handleSecureLogin(e) {
-            e.preventDefault();
+        function handleSecureLogin() {
             let emailInput = document.getElementById('loginUser').value.trim().toLowerCase();
             let passInput = document.getElementById('loginPass').value.trim();
             let errEl = document.getElementById('loginError');
@@ -372,7 +370,7 @@
                     errEl.style.display = 'block';
                 }
             } else {
-                errEl.innerText = "Gagal Login: Email @ptbss.id belum didaftarkan oleh admin!";
+                errEl.innerText = "Gagal Login: Email @ptbss.id belum didaftarkan di sistem!";
                 errEl.style.display = 'block';
             }
         }
