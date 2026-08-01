@@ -25,13 +25,14 @@
             display: flex; align-items: center; justify-content: center;
             border-radius: 50%; font-weight: bold; font-size: 16px;
         }
-        /* Kotak latar belakang biru muda untuk nama perusahaan */
+        /* Kotak latar belakang biru muda yang ditarik sejajar ke atas */
         .company-header-box {
             background-color: #e8f0fe;
             border-left: 5px solid #4e73df;
             border-radius: 0.35rem;
-            padding: 15px 20px;
-            margin-bottom: 20px;
+            padding: 12px 20px;
+            margin-top: -10px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -118,7 +119,7 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-3 static-top shadow">
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
@@ -134,20 +135,28 @@
                 <!-- BEGIN PAGE CONTENT: DASHBOARD -->
                 <div class="container-fluid pt-0" id="viewDashboard">
                     
-                    <!-- KOTAK NAMA PERUSAHAAN DI ATAS DENGAN LATAR BELAKANG BIRU MUDA -->
+                    <!-- KOTAK NAMA PERUSAHAAN DI ATAS (SEJAJAR & RAPI) -->
                     <div class="company-header-box shadow-sm">
-                        <h2 class="text-primary font-weight-bold mb-1" style="letter-spacing: 0.5px; font-size: 1.5rem;">PT. BANGGAI SENTRAL SULAWESI</h2>
-                        <p class="text-muted font-weight-bold mb-0" style="font-size: 0.95rem;">General Contractor and Suppliers</p>
+                        <h2 class="text-primary font-weight-bold mb-1" style="letter-spacing: 0.5px; font-size: 1.4rem;">PT. BANGGAI SENTRAL SULAWESI</h2>
+                        <p class="text-muted font-weight-bold mb-0" style="font-size: 0.9rem;">General Contractor and Suppliers</p>
                     </div>
 
-                    <!-- JUDUL DASHBOARD & PILIHAN KONTRAK DIANGKAT KE ATAS -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-3">
-                        <h1 class="h3 mb-0 text-gray-800 font-weight-bold">Dashboard Pemantauan Kontrak</h1>
-                        <div class="form-inline">
-                            <label class="mr-2 font-weight-bold text-primary" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Contract Number:</label>
-                            <select id="contractSelect" class="form-control form-control-sm font-weight-bold border-primary shadow-sm" onchange="onContractChange()">
-                                <option value="">Memuat Daftar Kontrak...</option>
-                            </select>
+                    <!-- KONTROL PEMILIHAN KONTROL YANG LEBIH LUAS DAN JELAS -->
+                    <div class="card shadow mb-3 border-left-primary">
+                        <div class="card-body py-3">
+                            <div class="row align-items-center">
+                                <div class="col-lg-4 mb-2 mb-lg-0">
+                                    <h1 class="h4 mb-0 text-gray-800 font-weight-bold">Pemantauan Kontrak</h1>
+                                </div>
+                                <div class="col-lg-8">
+                                    <div class="form-group mb-0">
+                                        <label class="font-weight-bold text-primary small mb-1" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Pilih Contract Number & Proyek:</label>
+                                        <select id="contractSelect" class="form-control font-weight-bold border-primary shadow-sm" onchange="onContractChange()">
+                                            <option value="">Memuat Daftar Kontrak...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -527,7 +536,7 @@
 
                     let opt = document.createElement('option');
                     opt.value = contractNum;
-                    opt.text = contractNum + " - " + contractName.substring(0, 40) + "...";
+                    opt.text = contractNum + " - " + contractName;
                     select.appendChild(opt);
 
                     let sheetOpt = document.createElement('a');
