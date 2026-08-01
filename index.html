@@ -28,7 +28,7 @@
     </style>
 </head>
 
-<body id="page-top" onload="checkAuth()">
+<body id="page-top">
 
     <!-- HALAMAN LOGIN -->
     <div id="login-overlay">
@@ -43,7 +43,8 @@
                             </div>
                             <form id="loginForm" onsubmit="handleLogin(event)">
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Username..." required autocomplete="username">
+                                    <!-- Diubah menggunakan format email untuk Firebase -->
+                                    <input type="email" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Akun..." required autocomplete="email">
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required autocomplete="current-password">
@@ -117,7 +118,6 @@
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow d-flex align-items-center">
                             <span class="mr-3 d-none d-lg-inline text-gray-600 font-weight-bold small" id="topbarUserRole">User</span>
-                            <!-- AVATAR INISIAL OTOMATIS (TANPA PERLU UPLOAD FOTO) -->
                             <div id="userAvatarContainer" class="user-avatar-circle shadow-sm">A</div>
                         </li>
                     </ul>
@@ -286,47 +286,41 @@
                 <!-- BEGIN ADMIN PANEL -->
                 <div class="container-fluid" id="viewAdmin" style="display:none;">
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Kelola Akun Rekan Kerja</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Kelola Akun Rekan Kerja (Firebase Auth)</h1>
                     </div>
                     <div class="row">
                         <div class="col-xl-5 mb-4">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3 bg-primary text-white font-weight-bold">
-                                    <i class="fas fa-user-plus fa-sm mr-2"></i> Tambah / Perbarui Password Akun
+                                    <i class="fas fa-user-plus fa-sm mr-2"></i> Tambah Akun Baru
                                 </div>
                                 <div class="card-body">
-                                    <form onsubmit="handleSaveUser(event)">
+                                    <form onsubmit="handleCreateUser(event)">
                                         <div class="form-group">
-                                            <label class="font-weight-bold small">Username Rekan Kerja:</label>
-                                            <input type="text" class="form-control" id="adminInputUser" placeholder="contoh: Itha" required>
+                                            <label class="font-weight-bold small">Email Rekan Kerja:</label>
+                                            <input type="email" class="form-control" id="adminInputEmail" placeholder="contoh: itha@bss.com" required>
                                         </div>
                                         <div class="form-group">
-                                            <label class="font-weight-bold small">Password Baru:</label>
+                                            <label class="font-weight-bold small">Password Akun (Min. 6 Karakter):</label>
                                             <input type="text" class="form-control" id="adminInputPass" placeholder="Masukkan password..." required>
                                         </div>
-                                        <button type="submit" class="btn btn-success btn-block font-weight-bold">Simpan / Perbarui Akun</button>
+                                        <button type="submit" class="btn btn-success btn-block font-weight-bold">Buat Akun di Firebase</button>
                                     </form>
+                                    <div id="adminActionStatus" class="small mt-2 font-weight-bold text-center" style="display:none;"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-7 mb-4">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3 bg-info text-white font-weight-bold">
-                                    <i class="fas fa-list fa-sm mr-2"></i> Daftar Akun yang Memiliki Akses
+                                    <i class="fas fa-info-circle fa-sm mr-2"></i> Informasi Keamanan Akun
                                 </div>
                                 <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered" width="100%" cellspacing="0">
-                                            <thead>
-                                                <tr>
-                                                    <th>Username</th>
-                                                    <th>Password</th>
-                                                    <th class="text-center">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="userTableBody"></tbody>
-                                        </table>
-                                    </div>
+                                    <p class="text-dark">Sistem login saat ini telah dilindungi oleh **Firebase Authentication**.</p>
+                                    <ul class="text-muted small">
+                                        <li>Password Anda tersimpan terenkripsi di server pusat Google.</li>
+                                        <li>Untuk menambah atau menghapus user secara langsung, Anda juga dapat mengelolanya melalui menu <b>Authentication -> Users</b> di dalam panel Firebase Console Anda.</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -354,130 +348,101 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- KODE SISTEM LOGIN STABIL -->
-    <script>
-        // DAFTAR AKUN AWAL
-        const DEFAULT_USERS = {
-            "admin": "bss2026",
-            "Itha": "Itha123",
-            "Ireine": "Ireine123",
-            "Yanuar": "Yanuar123",
-            "Chenly": "Chenly123",
-            "itha_bss": "itha_123"
+    <!-- FIREBASE SDK & LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/auth.js";
+
+        // Konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyCvWgark6nWZuBQjgyimX_v3bXvRBXlr0",
+            authDomain: "bss-dashboard-73681.firebaseapp.com",
+            projectId: "bss-dashboard-73681",
+            storageBucket: "bss-dashboard-73681.firebasestorage.app",
+            messagingSenderId: "25320657377",
+            appId: "1:25320657377:web:6144074f593ffd5d46aca0",
+            measurementId: "G-0DZTBMCJ1H"
         };
 
-        function initUsersStorage() {
-            // Hanya isi jika localStorage masih kosong, agar penambahan & penghapusan user tersimpan permanen
-            if (!localStorage.getItem("bss_users")) {
-                localStorage.setItem("bss_users", JSON.stringify(DEFAULT_USERS));
-            }
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-        function checkAuth() {
-            initUsersStorage();
-            let currentUser = sessionStorage.getItem("bss_logged_in_user");
-            if (currentUser) {
+        // Global functions
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            let email = document.getElementById('loginUser').value.trim();
+            let pass = document.getElementById('loginPass').value.trim();
+            let err = document.getElementById('loginError');
+            err.style.display = "none";
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    // Login berhasil
+                })
+                .catch((error) => {
+                    err.innerText = "Gagal Login: Email atau Password salah!";
+                    err.style.display = "block";
+                });
+        };
+
+        window.handleLogout = function() {
+            signOut(auth).then(() => {
+                location.reload();
+            });
+        };
+
+        window.handleCreateUser = function(e) {
+            e.preventDefault();
+            let email = document.getElementById('adminInputEmail').value.trim();
+            let pass = document.getElementById('adminInputPass').value.trim();
+            let statusEl = document.getElementById('adminActionStatus');
+
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    statusEl.style.display = "block";
+                    statusEl.className = "small mt-2 font-weight-bold text-center text-success";
+                    statusEl.innerText = "Berhasil membuat akun untuk: " + email;
+                    document.getElementById('adminInputEmail').value = "";
+                    document.getElementById('adminInputPass').value = "";
+                })
+                .catch((error) => {
+                    statusEl.style.display = "block";
+                    statusEl.className = "small mt-2 font-weight-bold text-center text-danger";
+                    statusEl.innerText = "Gagal membuat akun: " + error.message;
+                });
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('wrapper').style.display = 'flex';
-                setupUserSession(currentUser);
+                
+                let email = user.email;
+                let username = email.split('@')[0];
+                document.getElementById('activeUsernameDisplay').innerText = username;
+                
+                let isAdmin = email.toLowerCase().includes('admin');
+                document.getElementById('topbarUserRole').innerText = isAdmin ? 'Administrator' : 'Rekan Kerja (User)';
+                
+                let firstLetter = username.charAt(0).toUpperCase();
+                document.getElementById('userAvatarContainer').innerText = firstLetter;
+
+                if (isAdmin) {
+                    document.getElementById('adminMenuSection').style.display = 'block';
+                } else {
+                    document.getElementById('adminMenuSection').style.display = 'none';
+                }
+
                 initDashboard();
             } else {
                 document.getElementById('login-overlay').style.display = 'flex';
                 document.getElementById('wrapper').style.display = 'none';
             }
-        }
+        });
+    </script>
 
-        function handleLogin(e) {
-            e.preventDefault();
-            let u = document.getElementById('loginUser').value.trim();
-            let p = document.getElementById('loginPass').value.trim();
-            let users = JSON.parse(localStorage.getItem("bss_users"));
-
-            if (users[u] && users[u] === p) {
-                sessionStorage.setItem("bss_logged_in_user", u);
-                checkAuth();
-            } else {
-                let err = document.getElementById('loginError');
-                err.innerText = "Username atau Password salah!";
-                err.style.display = "block";
-            }
-        }
-
-        function handleLogout() {
-            sessionStorage.removeItem("bss_logged_in_user");
-            location.reload();
-        }
-
-        function setupUserSession(username) {
-            document.getElementById('activeUsernameDisplay').innerText = username;
-            document.getElementById('topbarUserRole').innerText = username === 'admin' ? 'Administrator' : 'Rekan Kerja (User)';
-            
-            // Set inisial huruf otomatis pada avatar pojok kanan atas
-            let firstLetter = username.charAt(0).toUpperCase();
-            document.getElementById('userAvatarContainer').innerText = firstLetter;
-
-            if (username === 'admin') {
-                document.getElementById('adminMenuSection').style.display = 'block';
-            } else {
-                document.getElementById('adminMenuSection').style.display = 'none';
-            }
-        }
-
-        function showDashboardView() {
-            document.getElementById('viewDashboard').style.display = 'block';
-            document.getElementById('viewAdmin').style.display = 'none';
-        }
-
-        function showAdminView() {
-            document.getElementById('viewDashboard').style.display = 'none';
-            document.getElementById('viewAdmin').style.display = 'block';
-            loadUserTable();
-        }
-
-        function handleSaveUser(e) {
-            e.preventDefault();
-            let u = document.getElementById('adminInputUser').value.trim();
-            let p = document.getElementById('adminInputPass').value.trim();
-            if (!u || !p) return;
-
-            let users = JSON.parse(localStorage.getItem("bss_users"));
-            users[u] = p;
-            localStorage.setItem("bss_users", JSON.stringify(users));
-
-            alert("Berhasil menyimpan/memperbarui akun: " + u);
-            document.getElementById('adminInputUser').value = "";
-            document.getElementById('adminInputPass').value = "";
-            loadUserTable();
-        }
-
-        function loadUserTable() {
-            let users = JSON.parse(localStorage.getItem("bss_users"));
-            let tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = "";
-
-            for (let u in users) {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="font-weight-bold text-dark">${u}</td>
-                    <td><code>${users[u]}</code></td>
-                    <td class="text-center">
-                        ${u !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u}')"><i class="fas fa-trash"></i> Hapus</button>` : `<span class="badge badge-success">Admin Utama</span>`}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            }
-        }
-
-        function deleteUser(username) {
-            if (confirm("Yakin ingin menghapus akses untuk akun: " + username + "?")) {
-                let users = JSON.parse(localStorage.getItem("bss_users"));
-                delete users[username];
-                localStorage.setItem("bss_users", JSON.stringify(users));
-                loadUserTable();
-            }
-        }
-
-        // KONTROL KONTRAK DASHBOARD
+    <!-- KONTROL KONTRAK DASHBOARD -->
+    <script>
         const CONTRACT_CONFIGS = [
             {
                 csvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTYhIHYqO6SQGjt5PLCc3MB4QSlyfU79ig9a8-oiqsRCBwJ3bPk9WmKmmOeoikVX084WPACNDATWw-I/pub?output=csv",
@@ -623,6 +588,16 @@
         function onContractChange() {
             let selectedId = document.getElementById('contractSelect').value;
             displayContractData(selectedId);
+        }
+
+        function showDashboardView() {
+            document.getElementById('viewDashboard').style.display = 'block';
+            document.getElementById('viewAdmin').style.display = 'none';
+        }
+
+        function showAdminView() {
+            document.getElementById('viewDashboard').style.display = 'none';
+            document.getElementById('viewAdmin').style.display = 'block';
         }
     </script>
 </body>
