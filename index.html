@@ -7,11 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Dashboard General Services - PT. Banggai Sentral Sulawesi</title>
 
-    <!-- Custom fonts for this template-->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
-    <!-- Custom styles for this template-->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
     <style>
         #login-overlay {
@@ -30,7 +28,6 @@
 
 <body id="page-top">
 
-    <!-- HALAMAN LOGIN FIREBASE AUTH -->
     <div id="login-overlay">
         <div class="container">
             <div class="row justify-content-center">
@@ -43,7 +40,7 @@
                             </div>
                             <form id="loginForm" onsubmit="handleLogin(event)">
                                 <div class="form-group">
-                                    <input type="email" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Akun..." required autocomplete="email">
+                                    <input type="email" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (@ptbss.id)..." required autocomplete="email">
                                 </div>
                                 <div class="form-group">
                                     <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required autocomplete="current-password">
@@ -58,10 +55,8 @@
         </div>
     </div>
 
-    <!-- Page Wrapper (DASHBOARD UTAMA) -->
     <div id="wrapper" style="display:none;">
 
-        <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-icon rotate-n-15">
@@ -78,7 +73,6 @@
                     <span>Dashboard</span></a>
             </li>
 
-            <!-- MENU ADMIN KHUSUS -->
             <div id="adminMenuSection" style="display:none;">
                 <hr class="sidebar-divider">
                 <div class="sidebar-heading">Admin Panel</div>
@@ -92,6 +86,11 @@
             <hr class="sidebar-divider">
             <div class="sidebar-heading">Sistem</div>
             <li class="nav-item">
+                <a class="nav-link" href="#" onclick="showSettingsView()">
+                    <i class="fas fa-fw fa-key"></i>
+                    <span>Ubah Password Saya</span></a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="#" onclick="handleLogout()">
                     <i class="fas fa-fw fa-sign-out-alt"></i>
                     <span>Logout (<span id="activeUsernameDisplay"></span>)</span></a>
@@ -101,15 +100,10 @@
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
         </ul>
-        <!-- End of Sidebar -->
-
-        <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
             <div id="content">
 
-                <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
@@ -121,9 +115,6 @@
                         </li>
                     </ul>
                 </nav>
-                <!-- End of Topbar -->
-
-                <!-- BEGIN PAGE CONTENT: DASHBOARD -->
                 <div class="container-fluid" id="viewDashboard">
                     <div class="mb-3">
                         <h2 class="text-primary font-weight-bold mb-0" style="letter-spacing: 0.5px;">PT. BANGGAI SENTRAL SULAWESI</h2>
@@ -140,7 +131,6 @@
                         </div>
                     </div>
 
-                    <!-- KOTAK INFORMASI -->
                     <div class="row mb-4">
                         <div class="col-xl-12">
                             <div class="card border-left-info shadow h-100 py-2">
@@ -168,7 +158,6 @@
                         </div>
                     </div>
 
-                    <!-- 3 KARTU UTAMA -->
                     <div class="row">
                         <div class="col-xl-4 col-md-6 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
@@ -211,7 +200,6 @@
                         </div>
                     </div>
 
-                    <!-- 5 KARTU RINCIAN -->
                     <div class="row">
                         <div class="col-xl-2 col-md-4 mb-4">
                             <div class="card border-left-primary shadow h-100 py-2">
@@ -280,30 +268,27 @@
                         </div>
                     </div>
                 </div>
-                <!-- END DASHBOARD -->
-
-                <!-- BEGIN ADMIN PANEL -->
                 <div class="container-fluid" id="viewAdmin" style="display:none;">
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">Kelola Akun Rekan Kerja (Firebase Auth)</h1>
+                        <h1 class="h3 mb-0 text-gray-800">Manajemen Akun Rekan Kerja (@ptbss.id)</h1>
                     </div>
                     <div class="row">
                         <div class="col-xl-5 mb-4">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3 bg-primary text-white font-weight-bold">
-                                    <i class="fas fa-user-plus fa-sm mr-2"></i> Tambah Akun Baru
+                                    <i class="fas fa-user-plus fa-sm mr-2"></i> Daftarkan Akun Rekan Kerja Baru
                                 </div>
                                 <div class="card-body">
                                     <form onsubmit="handleCreateUser(event)">
                                         <div class="form-group">
-                                            <label class="font-weight-bold small">Email Rekan Kerja:</label>
-                                            <input type="email" class="form-control" id="adminInputEmail" placeholder="contoh: staff@bss.com" required>
+                                            <label class="font-weight-bold small">Email Resmi (@ptbss.id):</label>
+                                            <input type="email" class="form-control" id="adminInputEmail" placeholder="contoh: nama@ptbss.id" required>
                                         </div>
                                         <div class="form-group">
-                                            <label class="font-weight-bold small">Password Akun (Min. 6 Karakter):</label>
-                                            <input type="text" class="form-control" id="adminInputPass" placeholder="Masukkan password..." required>
+                                            <label class="font-weight-bold small">Password Standar (Default: bss123):</label>
+                                            <input type="text" class="form-control" id="adminInputPass" value="bss123" required>
                                         </div>
-                                        <button type="submit" class="btn btn-success btn-block font-weight-bold">Buat Akun di Firebase</button>
+                                        <button type="submit" class="btn btn-success btn-block font-weight-bold">Buat Akun Perusahaan</button>
                                     </form>
                                     <div id="adminActionStatus" class="small mt-2 font-weight-bold text-center" style="display:none;"></div>
                                 </div>
@@ -312,25 +297,45 @@
                         <div class="col-xl-7 mb-4">
                             <div class="card shadow mb-4">
                                 <div class="card-header py-3 bg-info text-white font-weight-bold">
-                                    <i class="fas fa-info-circle fa-sm mr-2"></i> Informasi Keamanan Akun
+                                    <i class="fas fa-shield-alt fa-sm mr-2"></i> Aturan Keamanan Sistem BSS
                                 </div>
                                 <div class="card-body">
-                                    <p class="text-dark">Sistem login saat ini dilindungi penuh oleh <b>Firebase Authentication</b>.</p>
+                                    <p class="text-dark">Dashboard ini dilindungi secara ketat untuk operasional internal perusahaan:</p>
                                     <ul class="text-muted small">
-                                        <li>Hanya email yang terdaftar di database Firebase yang diizinkan masuk.</li>
-                                        <li>Akun admin dapat mendaftarkan atau memoderasi akun rekan kerja langsung dari panel ini maupun dari konsol Firebase pusat.</li>
+                                        <li>Hanya akun dengan domain resmi <b>@ptbss.id</b> yang diizinkan masuk ke sistem.</li>
+                                        <li>Setiap rekan kerja yang menerima password standar wajib segera mengganti password-nya melalui menu <b>"Ubah Password Saya"</b> di sidebar kiri.</li>
+                                        <li>Admin dapat memantau atau menambahkan akses baru melalui panel ini.</li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- END ADMIN PANEL -->
-
-            </div>
-            <!-- End of Main Content -->
-
-            <!-- Footer -->
+                <div class="container-fluid" id="viewSettings" style="display:none;">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Pengaturan Keamanan Akun</h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-xl-6 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 bg-primary text-white font-weight-bold">
+                                    <i class="fas fa-key fa-sm mr-2"></i> Perbarui Password Mandiri
+                                </div>
+                                <div class="card-body">
+                                    <form onsubmit="handleChangePassword(event)">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small">Password Baru (Minimal 6 Karakter):</label>
+                                            <input type="password" class="form-control" id="newPasswordInput" placeholder="Masukkan password baru..." required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-block font-weight-bold">Simpan Password Baru</button>
+                                    </form>
+                                    <div id="changePassStatus" class="small mt-2 font-weight-bold text-center" style="display:none;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
@@ -341,16 +346,14 @@
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
 
-    <!-- FIREBASE SDK & LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/auth.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updatePassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.17.0/firebase/auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCvWgark6nWZuBQjdgYiwX_v3bXvRBXlr0",
@@ -367,17 +370,24 @@
 
         window.handleLogin = function(e) {
             e.preventDefault();
-            let email = document.getElementById('loginUser').value.trim();
+            let email = document.getElementById('loginUser').value.trim().toLowerCase();
             let pass = document.getElementById('loginPass').value.trim();
             let err = document.getElementById('loginError');
             err.style.display = "none";
+
+            // Validasi wajib domain @ptbss.id
+            if (!email.endsWith('@ptbss.id')) {
+                err.innerText = "Akses Ditolak: Hanya email resmi @ptbss.id yang diizinkan!";
+                err.style.display = "block";
+                return;
+            }
 
             signInWithEmailAndPassword(auth, email, pass)
                 .then((userCredential) => {
                     // Login Berhasil
                 })
                 .catch((error) => {
-                    err.innerText = "Gagal Login: Periksa kembali email atau password Anda!";
+                    err.innerText = "Gagal Login: Email atau Password salah!";
                     err.style.display = "block";
                 });
         };
@@ -390,9 +400,16 @@
 
         window.handleCreateUser = function(e) {
             e.preventDefault();
-            let email = document.getElementById('adminInputEmail').value.trim();
+            let email = document.getElementById('adminInputEmail').value.trim().toLowerCase();
             let pass = document.getElementById('adminInputPass').value.trim();
             let statusEl = document.getElementById('adminActionStatus');
+
+            if (!email.endsWith('@ptbss.id')) {
+                statusEl.style.display = "block";
+                statusEl.className = "small mt-2 font-weight-bold text-center text-danger";
+                statusEl.innerText = "Gagal: Email wajib berakhiran @ptbss.id!";
+                return;
+            }
 
             createUserWithEmailAndPassword(auth, email, pass)
                 .then((userCredential) => {
@@ -400,7 +417,7 @@
                     statusEl.className = "small mt-2 font-weight-bold text-center text-success";
                     statusEl.innerText = "Berhasil membuat akun untuk: " + email;
                     document.getElementById('adminInputEmail').value = "";
-                    document.getElementById('adminInputPass').value = "";
+                    document.getElementById('adminInputPass').value = "bss123";
                 })
                 .catch((error) => {
                     statusEl.style.display = "block";
@@ -409,16 +426,47 @@
                 });
         };
 
+        window.handleChangePassword = function(e) {
+            e.preventDefault();
+            let newPass = document.getElementById('newPasswordInput').value.trim();
+            let statusEl = document.getElementById('changePassStatus');
+            let user = auth.currentUser;
+
+            if (user && newPass.length >= 6) {
+                updatePassword(user, newPass).then(() => {
+                    statusEl.style.display = "block";
+                    statusEl.className = "small mt-2 font-weight-bold text-center text-success";
+                    statusEl.innerText = "Password berhasil diperbarui! Gunakan password baru ini untuk login selanjutnya.";
+                    document.getElementById('newPasswordInput').value = "";
+                }).catch((error) => {
+                    statusEl.style.display = "block";
+                    statusEl.className = "small mt-2 font-weight-bold text-center text-danger";
+                    statusEl.innerText = "Gagal memperbarui password: " + error.message;
+                });
+            } else {
+                statusEl.style.display = "block";
+                statusEl.className = "small mt-2 font-weight-bold text-center text-danger";
+                statusEl.innerText = "Password minimal harus 6 karakter!";
+            }
+        };
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                let email = user.email.toLowerCase();
+                
+                // Pastikan hanya domain @ptbss.id yang masuk
+                if (!email.endsWith('@ptbss.id')) {
+                    signOut(auth);
+                    return;
+                }
+
                 document.getElementById('login-overlay').style.display = 'none';
                 document.getElementById('wrapper').style.display = 'flex';
                 
-                let email = user.email;
                 let username = email.split('@')[0];
                 document.getElementById('activeUsernameDisplay').innerText = username;
                 
-                let isAdmin = email.toLowerCase().includes('admin');
+                let isAdmin = email.includes('admin') || email.includes('ones');
                 document.getElementById('topbarUserRole').innerText = isAdmin ? 'Administrator' : 'Rekan Kerja (User)';
                 
                 let firstLetter = username.charAt(0).toUpperCase();
@@ -438,7 +486,6 @@
         });
     </script>
 
-    <!-- KONTROL KONTRAK DASHBOARD -->
     <script>
         const CONTRACT_CONFIGS = [
             {
@@ -590,11 +637,19 @@
         function showDashboardView() {
             document.getElementById('viewDashboard').style.display = 'block';
             document.getElementById('viewAdmin').style.display = 'none';
+            document.getElementById('viewSettings').style.display = 'none';
         }
 
         function showAdminView() {
             document.getElementById('viewDashboard').style.display = 'none';
             document.getElementById('viewAdmin').style.display = 'block';
+            document.getElementById('viewSettings').style.display = 'none';
+        }
+
+        function showSettingsView() {
+            document.getElementById('viewDashboard').style.display = 'none';
+            document.getElementById('viewAdmin').style.display = 'none';
+            document.getElementById('viewSettings').style.display = 'block';
         }
     </script>
 </body>
