@@ -43,10 +43,10 @@
                             </div>
                             <form id="loginForm" onsubmit="handleLogin(event)">
                                 <div class="form-group">
-                                    <input type="text" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (contoh: nama@ptbss.id)" required autocomplete="off">
+                                    <input type="email" class="form-control form-control-user" id="loginUser" placeholder="Masukkan Email Resmi (@ptbss.id)..." required>
                                 </div>
                                 <div class="form-group">
-                                    <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required autocomplete="current-password">
+                                    <input type="password" class="form-control form-control-user" id="loginPass" placeholder="Masukkan Password..." required>
                                 </div>
                                 <button type="submit" class="btn btn-primary btn-user btn-block font-weight-bold">Login ke Dashboard</button>
                             </form>
@@ -324,7 +324,6 @@
                                     <ul class="text-muted small">
                                         <li>Hanya akun dengan domain resmi <b>@ptbss.id</b> yang diizinkan masuk ke sistem.</li>
                                         <li>Setiap rekan kerja yang menerima password standar wajib segera mengganti password-nya melalui menu <b>"Ubah Password Saya"</b> di sidebar kiri.</li>
-                                        <li>Admin dapat memantau atau menambahkan akses baru melalui panel ini.</li>
                                     </ul>
                                 </div>
                             </div>
@@ -405,9 +404,8 @@
             let err = document.getElementById('loginError');
             err.style.display = "none";
 
-            // Validasi wajib domain @ptbss.id
             if (!email.endsWith('@ptbss.id')) {
-                err.innerText = "Akses Ditolak: Gunakan email lengkap berakhiran @ptbss.id (contoh: admin@ptbss.id)";
+                err.innerText = "Akses Ditolak: Gunakan email resmi berakhiran @ptbss.id";
                 err.style.display = "block";
                 return;
             }
@@ -417,7 +415,16 @@
                     // Login Berhasil
                 })
                 .catch((error) => {
-                    err.innerText = "Gagal Login: Periksa kembali email atau password Anda!";
+                    // Menampilkan pesan error asli dari Firebase agar jelas kendalanya
+                    let pesanGagal = "Gagal Login: Email atau Password salah!";
+                    if (error.code === 'auth/user-not-found') {
+                        pesanGagal = "Gagal: Email belum terdaftar di database Firebase!";
+                    } else if (error.code === 'auth/wrong-password') {
+                        pesanGagal = "Gagal: Password salah!";
+                    } else if (error.code === 'auth/invalid-credential') {
+                        pesanGagal = "Gagal: Kombinasi email/password tidak valid!";
+                    }
+                    err.innerText = pesanGagal;
                     err.style.display = "block";
                 });
         };
@@ -466,7 +473,7 @@
                 updatePassword(user, newPass).then(() => {
                     statusEl.style.display = "block";
                     statusEl.className = "small mt-2 font-weight-bold text-center text-success";
-                    statusEl.innerText = "Password berhasil diperbarui! Gunakan password baru ini untuk login selanjutnya.";
+                    statusEl.innerText = "Password berhasil diperbarui!";
                     document.getElementById('newPasswordInput').value = "";
                 }).catch((error) => {
                     statusEl.style.display = "block";
@@ -483,7 +490,6 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 let email = user.email.toLowerCase();
-                
                 if (!email.endsWith('@ptbss.id')) {
                     signOut(auth);
                     return;
