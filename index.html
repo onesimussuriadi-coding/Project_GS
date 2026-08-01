@@ -33,6 +33,12 @@
             margin-top: -10px;
             margin-bottom: 15px;
         }
+        /* Memperlebar kotak dropdown agar nomor dan nama kontrak terbaca luas */
+        #contractSelect {
+            font-size: 0.95rem;
+            height: auto;
+            padding: 8px 12px;
+        }
     </style>
 </head>
 
@@ -140,7 +146,7 @@
                         <p class="text-muted font-weight-bold mb-0" style="font-size: 0.9rem;">General Contractor and Suppliers</p>
                     </div>
 
-                    <!-- KONTROL PEMILIHAN KONTROL -->
+                    <!-- KONTROL PEMILIHAN KONTRAK -->
                     <div class="card shadow mb-3 border-left-primary">
                         <div class="card-body py-3">
                             <div class="row align-items-center">
@@ -150,7 +156,7 @@
                                 <div class="col-lg-9">
                                     <div class="form-group mb-0">
                                         <label class="font-weight-bold text-primary small mb-1" for="contractSelect"><i class="fas fa-file-contract fa-sm"></i> Pilih Nomor Kontrak & Proyek:</label>
-                                        <select id="contractSelect" class="form-control font-weight-bold border-primary shadow-sm text-truncate" onchange="onContractChange()">
+                                        <select id="contractSelect" class="form-control font-weight-bold border-primary shadow-sm" onchange="onContractChange()">
                                             <option value="">Memuat Daftar Kontrak...</option>
                                         </select>
                                     </div>
@@ -176,7 +182,7 @@
                                                         <button class="btn btn-sm btn-success dropdown-toggle shadow-sm font-weight-bold" type="button" id="dropdownSheetButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                             <i class="fas fa-database fa-sm text-white-50"></i> Proses / Edit Google Sheet
                                                         </button>
-                                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownSheetButton" id="sheetDropdownList"></div>
+                                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownSheetButton" id="sheetDropdownList" style="min-width: 280px;"></div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -502,7 +508,8 @@
                     let rows = parseCSVRow(data);
                     if (rows.length < 15) continue;
 
-                    let contractNum = rows[0] && rows[0][2] ? rows[0][2].trim() : "";
+                    // Mengambil Nomor Kontrak dari baris indeks ke-1 (yang benar)
+                    let contractNum = rows[1] && rows[1][2] ? rows[1][2].trim() : "KONTRAK";
                     let contractName = rows[2] && rows[2][2] ? rows[2][2].trim() : "";
                     let startDate = rows[4] && rows[4][2] ? rows[4][2].trim() : "";
                     let endDate = rows[5] && rows[5][2] ? rows[5][2].trim() : "";
@@ -533,19 +540,19 @@
                         editUrl: config.editUrl
                     };
 
-                    // Format ringkas pada pilihan dropdown: [Nomor Kontrak] - [Nama Proyek (dibatasi 35 karakter)]
-                    let shortName = contractName.length > 35 ? contractName.substring(0, 35) + "..." : contractName;
+                    // Format 1 & 2: Dropdown utama menampilkan Nomor Kontrak di depan diikuti nama proyek
+                    let shortName = contractName.length > 40 ? contractName.substring(0, 40) + "..." : contractName;
                     let opt = document.createElement('option');
                     opt.value = contractNum;
-                    opt.text = contractNum + " | " + shortName;
+                    opt.text = contractNum + " - " + shortName;
                     select.appendChild(opt);
 
-                    // Format tombol edit Google Sheet dengan nomor kontrak yang jelas
+                    // Format tombol edit Google Sheet menampilkan nomor dan nama kontrak secara seragam
                     let sheetOpt = document.createElement('a');
                     sheetOpt.className = "dropdown-item small font-weight-bold text-success py-2";
                     sheetOpt.href = config.editUrl;
                     sheetOpt.target = "_blank";
-                    sheetOpt.innerHTML = `<i class="fas fa-file-excel fa-sm mr-2"></i> Kontrak: <b>${contractNum}</b>`;
+                    sheetOpt.innerHTML = `<i class="fas fa-file-excel fa-sm mr-2"></i> <b>${contractNum}</b>`;
                     sheetDropdown.appendChild(sheetOpt);
 
                 } catch (err) {
@@ -564,6 +571,7 @@
             let data = contractData[contractId];
             if (!data) return;
 
+            // Format 3: Nilai-nilai di dashboard langsung memperbarui data sesuai kontrak yang dipilih
             document.getElementById('info-contract-name').innerText = data.contractName;
             document.getElementById('info-contract-date').innerText = data.startDate + " - " + data.endDate;
             document.getElementById('info-contract-remaining').innerText = data.remainingDays;
